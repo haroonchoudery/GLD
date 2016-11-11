@@ -1,0 +1,131 @@
+{{ settings.custom_css }}
+/* #Font-Face
+================================================== */
+/*  This is the proper syntax for an @font-face file.
+    Upload your font files to Assets and then
+    copy your FontName into code below and remove
+    comment brackets */
+    
+/*  @font-face {
+      font-family: 'FontName';
+      src: url('FontName.eot');
+      src: url('FontName.eot?iefix') format('eot'),
+           url('FontName.woff') format('woff'),
+           url('FontName.ttf') format('truetype'),
+           url('FontName.svg#webfontZam02nTh') format('svg');
+      font-weight: normal;
+      font-style: normal; }
+*/
+h1, h2, h3, h4, h5 {
+    font-weight: normal;
+    font-style: normal;
+    line-height: normal;
+    font-family: 'Conv_Proxima Nova Bold', sans-serif;
+    font-size-adjust: 0.52;
+}
+
+#nav a {
+    font-weight: normal;
+    font-style: normal;
+    font-family: 'Conv_Proxima Nova Bold';
+}
+
+ {
+    font-weight: normal;
+    font-style: normal;
+    font-family: 'Conv_ITC - NewBaskervilleStd-Roman', sans-serif;
+    font-size-adjust: 0.52;
+}
+
+
+.product-modal {
+  top: 40%;
+}
+
+h1#page-title {
+  text-align:center;
+}
+
+.shappify_option_name {
+  font-weight: bold;
+}
+
+.homepage-promo h3 {
+    padding: 10px 2.5em;
+    opacity: 0;
+    font-size: 16px;
+    -webkit-transition: opacity 0.35s, -webkit-transform 0.35s;
+    transition: opacity 0.35s, transform 0.35s;
+    -webkit-transform: translate3d(0,20px,0);
+    transform: translate3d(0,20px,0);
+}
+
+/* Make screen wider than 1200px 
+@media screen and (min-width: 1220px){
+ div #content .row {
+  	width: 1500px;
+  }
+}
+*/
+
+.search input[type="text"] {
+  color: /*!setting.text_color{*/#FFFFFF/*}*/
+}
+
+input#q {
+  background: #000000;
+}
+
+#pagination {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.advertising {
+  background-color: #000;
+}
+
+#basket-right img.paypal-credit{
+  width: auto;
+}
+
+@media only screen and (max-width: 740px) { 
+  input {
+  
+}
+}
+  
+input.bold_option_child {
+  width: auto;
+  min-width: 0;
+}
+
+
+<!-- Related Products Mobile -->
+@media only screen and (max-width: 740px) {
+ div.linkcious_ads {
+   float: left !important;
+ }
+  
+}
+#cart_popup {max-width: 100%;}
+@media (max-width: 740px) {
+  #cart_popup a.checkout-link {padding: 0 10px;}
+  #cart_popup .quick-cart-item .desktop-2 {
+	width: 30%;
+  }
+  #cart_popup .quick-cart-item .desktop-2 img {
+      width: 100%;
+  }
+  #cart_popup .quick-cart-item .desktop-4 {
+      width: 60%;
+  }
+}
+
+/* --- */
+#cart_popup .quick-cart-item .desktop-2 img {
+      width: 60px;
+  }
+#cart_popup .quick-cart-item:nth-child(1) {
+	display: block !important;
+}

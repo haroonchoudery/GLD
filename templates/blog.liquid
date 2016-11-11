@@ -1,0 +1,84 @@
+<div class="desktop-10 desktop-push-1 tablet-6 mobile-3">
+
+  <h1 class="desktop-12 mobile-3">{% if current_tags %}{{ blog.title | link_to: blog.url }} &raquo; {{ current_tags.first }}{% else %}{{ blog.title }}{% endif %}</h1>
+  {% paginate blog.articles by 50 %}
+
+  <div id="article-loop" class="desktop-9 tablet-4 mobile-3"> 
+    {% for article in blog.articles  %}
+    {% assign number_of_comments = article.comments_count %}
+    {% if comment and comment.created_at %}
+    {% assign number_of_comments = article.comments_count | plus: 1 %}
+    {% endif %} 
+    <div class="article-index" id="article-{{ article.id }}" data-alpha="{{ article.title }}">   
+      {% include 'article-loop' %}
+    </div>
+    {% endfor %}
+  </div> 
+  <div id="blog-sidebar" class="desktop-3 mobile-3">
+    <h2>{{ 'blogs.sidebar.title' | t }}</h2>
+
+    <ul id="posts">
+      {% for article in blog.articles limit: 3  %}
+      <li><a href="{{article.url}}"><h4>{{ article.title }}</h4></a>
+        <p>{{ article.published_at | date: "%b %d %Y" }}</p>
+        <p>{{ article.content | strip_html | truncate: 140 }}</p>
+      </li>
+      {% endfor %} 
+      {% if blog.tags > 0 %}
+      <h3 style="margin: 20px 0">{{ 'blogs.sidebar.categories' | t }}</h3>
+      {% for tag in blog.all_tags %}
+      <li class="tags">
+        <a href="{{ shop.url}}/blogs/{{ blog.handle }}/tagged/{{ tag | handleize }}">{{ tag }}</a>
+      </li>
+      {% endfor %}
+      {% endif %}
+    </ul>
+
+    {% if settings.show-blog-instagram-feed %}    
+    {% assign url = '{{image}}' %}
+    {% assign caption = '{{caption}}' %}
+    <div id="instagram-card">
+      <h3>{{ 'layout.homepage.instagram' | t }}</h3>
+      <div id="instafeed"></div>
+      <script type="text/javascript">
+        var userFeed = new Instafeed({
+          get: 'user',
+          userId: {{ settings.instagram-user-id }},
+          accessToken: '{{ settings.instagram-access-token }}',
+          template: '<a class="fancybox desktop-4 tablet-2 mobile-half href="{{url}}" rel="ig" title="{{ caption }}"><img class="instagram-image" src="{{ url }}" /></a>'
+        });
+        userFeed.run();        
+      </script>
+    </div>
+    {% endif %}
+
+    {% if settings.show-twitter-feed %}    
+    <div id="twitter-card">
+      <h3>{{ 'blogs.sidebar.twitter_title' | t }}</h3>
+      <a class="twitter-timeline" href="//twitter.com/{{ settings.twittername }}" data-widget-id="{{ settings.twitter-widget }}" data-chrome="noborders noheader transparent" data-tweet-limit="3">Recent Tweets</a>
+      <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>     
+    </div>  
+    {% endif %}
+
+    {% if settings.show-facebook-like %}        
+    <div id="facebook-card">
+      <h3>{{ 'blogs.sidebar.facebook_title' | t }}</h3>
+      <div class="fb-like-box" data-href="{{ settings.facebook_url }}" data-colorscheme="light" data-show-faces="false" data-header="false" data-stream="false" data-show-border="false"></div> 
+    </div>
+    {% endif %}
+
+  </div>
+
+
+  <div class="clear"></div>
+
+  {% include 'pagination' %}
+
+  {% endpaginate %}
+
+
+</div>
+
+{% include 'limespot-recently-viewed' %}
+{% include 'limespot-trending' %}
+{% include 'limespot-new-arrival' %}

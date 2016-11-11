@@ -1,0 +1,8 @@
+{% assign collection = settings.homepage-products %}
+<div class="row homepage-section no-fouc">
+  {% if settings.homepage-product-display == 'grid' %}
+  {% include 'product-grid' with collection %}
+  {% elsif settings.homepage-product-display == 'carousel' %}
+  {% include 'product-carousel' with collection %}
+  {% endif %}
+</div>

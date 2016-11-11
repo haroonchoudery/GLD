@@ -1,0 +1,153 @@
+{% include 'bold-cart' %}
+<!--<div class="desktop-12 tablet-6 mobile-6 center advertising">
+  <img src="{{ 'checkout-banner.jpg' | asset_url }}"/>
+</div> -->
+<div id="shopping-cart" class="desktop-12 tablet-6 mobile-3">
+
+  <h2>{{ 'cart.general.title' | t }}</h2>
+  <div class="buyx-msg"></div>
+{% include 'buyx-cart' %}
+  {% if cart.item_count == 0 %}
+  <p>{{ 'cart.general.empty' | t }}</p>
+
+  {% else %}
+  <script type="text/javascript">
+    function remove_item(id) {
+      document.getElementById('updates_'+id).value = 0;
+      document.getElementById('cartform').submit();
+    }
+  </script>
+  <form action="/cart" method="post" id="cartform">
+
+    <table>
+      <thead>
+        <tr>
+          <th><label>{{ 'cart.general.product' | t }}</label></th>
+          <th><label>{{ 'cart.general.price' | t }}</label></th>
+          <th style="text-align: center;"><label>{{ 'cart.general.qty' | t }}</label></th>
+          <th style="text-align: center;"><label>{{ 'cart.general.remove' | t }}</label></th>
+          <th><label>{{ 'cart.general.price' | t }}</label></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in cart.items %}
+        {% include 'bold-cart-item' with item %}
+        <tr class="{{ bold_row_class }}" {{ bold_row_data }}>
+          <td class="cart-item">
+              <div class="cart-image">
+                <a href="{{ item.url }}" title="{{ item.product.title | escape }}">
+                  <img src="{{ item | img_url: 'compact' }}" alt="{{ item.title | escape }}" />
+                </a>
+                {{ bold_item_properties }}
+              </div>
+              <div class="cart-title">
+                {% if settings.vendor %}<p>{{ item.vendor }}</p>{% endif %}
+                {{ item.title | remove: ' / Default' | remove: 'Default' }}
+              </div>
+          </td>
+          <td class="cart-price">
+            {{ bold_item_price | money }}{% if item.variant.compare_at_price > bold_item_price %}&nbsp;<del>{{ item.variant.compare_at_price | money }}</del>{% endif %}          
+          </td>
+          <td class="cart-quantity {{ bold_qty_class }}" {{ bold_qty_attr }}>
+            <input type="text" class="cart-qty" size="4" name="updates[{{ item.variant.id }}]" id="updates_{{ item.variant.id }}" value="{{ item.quantity }}" onfocus="this.select();"
+                   
+{% unless item.variant.inventory_management == blank or item.variant.inventory_policy == 'continue' %} max="{{ item.variant.inventory_quantity }}" {% endunless %}
+/>    
+          </td>
+          <td class="cart-remove {{ bold_remove_class }}">
+            <a href="{{ bold_remove_href }}" {{ bold_remove_attr }}><i class="fa fa-times"></i></a>
+          </td>
+          <td class="cart-total">
+            {{ bold_item_line_price | money }}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+
+    <div id="basket-right" class="desktop-3 tablet-6 mobile-3">
+      <h4>{{ 'cart.general.subtotal' | t }} {{ cart.total_price | money }}</h4>
+      <input type="submit" name="update" id="update-cart" value="{{ 'cart.general.update' | t }}" class="button" />
+      <input type="submit" name="checkout" id="checkout" value="{{ 'cart.general.checkout' | t }}" class="button" />
+<!-- PayPal Button    
+      <div class="clear"></div>
+      {% if additional_checkout_buttons %} 
+      {{ content_for_additional_checkout_buttons }} 
+      {% endif %}     
+
+      <div class="clear"></div>
+      <a target="_blank" href="https://creditapply.paypal.com/apply?guid=9I4VCP0C">
+      <img class="paypal-credit" src="https://www.paypalobjects.com/webstatic/en_US/i/buttons/ppcredit_LG_BNPOT_1x.png" alt="PayPal Credit" />
+      </a>
+      <div class="clear"></div>
+<!-- PayPal Credit Banner
+      <script type="text/javascript" data-pp-pubid="78c5cec809" data-pp-placementtype="190x100"> (function (d, t) {
+      "use strict";
+      var s = d.getElementsByTagName(t)[0], n = d.createElement(t);
+      n.src = "//paypal.adtag.where.com/merchant.js";
+      s.parentNode.insertBefore(n, s);
+      }(document, "script"));
+      </script>
+-->
+
+
+      <div class="clear"></div>
+
+    </div>
+
+
+  </form>
+  {% endif %}
+
+</div>
+
+<!-- Linkcious
+  <div class="clear"></div>
+    <div id="related" class="desktop-12 tablet-12 mobile-12">
+      <h4>You Might Also Be Interested In...</h4>
+      {% include 'linkcious' %}
+    </div>
+
+-->
+
+{{ bold_edit_in_cart }}
+
+<script>
+    jQuery('[max]').change(function() {
+      var max = parseInt(jQuery(this).attr('max'), 10);
+      if (isNaN(max)) {
+        return
+      }
+      var value = parseInt(jQuery(this).val(), 10) || 0;
+      if (value > max) { jQuery(this).val(max); }
+    });
+    /* change won't trigger on initial load */
+    jQuery('[max]').each(function() {
+      var max = parseInt(jQuery(this).attr('max'), 10);
+      if (isNaN(max)) {
+        return
+      }
+      var value = parseInt(jQuery(this).val(), 10) || 0;
+      if (value > max) { jQuery(this).val(max); }
+    });
+  if (typeof BuyXSubmit == "function") {
+    var buyx_checkout_selectors = ["input[name='checkout']", "button[name='checkout']", "input[name='goto_pp']", "button[name='goto_pp']", "input[name='goto_gc']", "button[name='goto_gc']", "[href$='checkout']", ".google-wallet-button-holder", ".amazon-payments-pay-button"];
+    window.buyx_cart_global = {{ cart | json }}
+    buyx_checkout_selectors.forEach(function(selector) {
+        jQuery(selector).bind("click", function() {
+          console.log("click")
+            return BuyXSubmit(window.buyx_cart_global, "#updates_{variant_id}");
+            //use appropriate selector for your theme, e.g. "input[data-id={variant_id}]"
+        })
+    });
+  }
+</script>
+
+
+{% include 'limespot-related-cart' %}
+{% include 'limespot-cross-sell-cart' %}
+{% include 'limespot-upsell-cart' %}
+{% include 'limespot-you-may-like' %}
+{% include 'limespot-recently-viewed' %}
+{% include 'limespot-most-popular' %}

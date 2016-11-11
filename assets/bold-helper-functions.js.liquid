@@ -1,0 +1,418 @@
+if(typeof(Bold) === 'undefined') 
+  var Bold = {};
+Bold.cleanCart = function(cart){
+  
+  var cart_total = 0;
+  var is_recurring = false; 
+  
+  for(var item in cart.items){
+    /* Check for RO discount. Requires V2 RO to get the discount percentage for Options */
+    var discount_multiplier = 100.00;
+    if (cart.items[item].properties && cart.items[item].properties._ro_discount_percentage){
+      is_recurring = true;
+      discount_multiplier -= parseFloat(cart.items[item].properties._ro_discount_percentage);
+    }
+    discount_multiplier *= 0.01;
+    
+    /* Check for a quantity multiplier. This could come from BTM or Builder */
+    cart.items[item].qty_ratio = 1;
+    if(cart.items[item].properties && cart.items[item].properties._btm_ratio){
+      cart.items[item].qty_ratio = parseInt(cart.items[item].properties._btm_ratio);
+      cart.items[item].is_btm = true;
+    }
+    
+    /* Set the price to match the discounted price, if discount is set */
+    if(cart.items[item].properties && cart.items[item].properties._ro_unformatted_price && !(cart.items[item].properties.master_builder || cart.items[item].properties._master_builder)){
+      cart.items[item].price = Math.ceil(cart.items[item].price * discount_multiplier);
+      cart.items[item].line_price = cart.items[item].price * cart.items[item].quantity;
+    }
+    
+    if(cart.items[item].properties && ( (cart.items[item].properties._master_builder && cart.items[item].properties._builder_id) || (cart.items[item].properties.master_builder && cart.items[item].properties.builder_id) )){
+      var builder_id = '';
+      if(cart.items[item].properties._master_builder) builder_id = cart.items[item].properties._builder_id;
+      else builder_id = cart.items[item].properties.builder_id;
+      cart.items[item].builder_id = builder_id;
+      cart.items[item].builder_type = 'bold-master';
+      var bold_price = 0;
+      for(var priceitem in cart.items){
+        if(cart.items[priceitem].properties && (cart.items[priceitem].properties._builder_id == builder_id || cart.items[priceitem].properties.builder_id == builder_id )){
+          
+          /* Check for a quantity multiplier on the product , which could come from BTM or from Builder */
+          var component_qty_multiplier = 1;
+          if(cart.items[priceitem].properties && cart.items[priceitem].properties._btm_ratio)
+            component_qty_multiplier = parseInt(cart.items[priceitem].properties._btm_ratio);
+
+          bold_price += cart.items[priceitem].price * component_qty_multiplier;
+        }
+      }
+      
+      /* Apply the RO discount (If unset, multiplies by 1.00) */
+      cart.items[item].price = Math.ceil(bold_price * discount_multiplier);
+      cart.items[item].line_price = cart.items[item].price * cart.items[item].quantity / cart.items[item].qty_ratio;
+      
+    }
+  }
+  /*Now that we've found all of the right prices, we can clear the prices on linked options and clean up the property fields*/
+  for(var item in cart.items){
+    /* Clean up linked priced options */
+    if(cart.items[item].properties && ( cart.items[item].properties.builder_id && !cart.items[item].properties.master_builder || cart.items[item].properties._builder_id && !cart.items[item].properties._master_builder) ){
+      if(cart.items[item].properties.builder_id) cart.items[item].builder_id = cart.items[item].properties.builder_id;
+      else cart.items[item].builder_id = cart.items[item].properties._builder_id;
+      
+      cart.item_count -= cart.items[item].quantity;
+      cart.items[item].builder_type = 'bold-hidden';
+      cart.items[item].properties = { bold_hidden: true };
+      cart.items[item].price = 0;
+      cart.items[item].line_price = 0;
+      continue;
+    }
+    
+    /* Check for builder_info and set builder properties if found */
+    if(cart.items[item].properties && (cart.items[item].properties.builder_info || cart.items[item].properties._builder_info) ){
+      var builder_info;
+      if(cart.items[item].properties.builder_info) builder_info = cart.items[item].properties.builder_info.split('~~');
+      else builder_info = cart.items[item].properties._builder_info.split('~~');
+      
+      cart.items[item].builder_image_alt = builder_info[0];
+      cart.items[item].builder_image_src = builder_info[1];
+      cart.items[item].url = '/apps/productbuilder/'+builder_info[2];
+    }
+    
+    /* Build the recurring order description, if the fields exist */
+    if(cart.items[item].properties && cart.items[item].properties.frequency_num && cart.items[item].properties.frequency_type_text){
+      var recurring_desc = 'Delivered every ' + cart.items[item].properties.frequency_num + ' '  + cart.items[item].properties.frequency_type_text;
+      cart.items[item].bold_recurring_desc = recurring_desc;
+      cart.items[item].bold_recurring_frequency_num = cart.items[item].properties.frequency_num;
+      cart.items[item].bold_recurring_frequency_text = cart.items[item].properties.frequency_type_text;
+    }
+    
+    /* Set the BTM fields, if they exist */
+    if(cart.items[item].qty_ratio && cart.items[item].quantity){
+      cart.items[item].true_qty = cart.items[item].quantity;
+      cart.items[item].quantity = cart.items[item].quantity / cart.items[item].qty_ratio;
+      
+      cart.item_count = cart.item_count - cart.items[item].true_qty + cart.items[item].quantity;
+    }
+    
+    /* Finally, remove any properties that shouldn't be showing to the customer */
+    if(cart.items[item].properties) {
+      for(var property in cart.items[item].properties){
+        if( (property.slice(0,1) == '_' && property.slice(1,1) !='_' ) || property == 'master_builder' || property == 'builder_id' || property == 'builder_info' || property == 'frequency_type' || property == 'frequency_type_text' || property == 'frequency_num' || property == 'group_id' || property == 'discounted_price' || cart.items[item].properties[property] == ""){
+          delete cart.items[item].properties[property];
+        }
+      }
+    }
+
+    /* Add the line price to our cart's total */
+    if(!isNaN(cart.items[item].line_price))
+      cart_total += cart.items[item].line_price;
+  }
+  window['mixed_cart'] = is_recurring;
+  cart.total_price = cart_total;
+  return(cart);
+};
+
+Bold.updateQtyBoxes = function(){
+  jQuery.each(jQuery('.bold-btm-master[data-bold-btm-ratio]'), function(i, obj){
+    var multiplier = parseInt(jQuery(obj).data('bold-btm-ratio'));
+    var btm_qty = parseInt(jQuery(obj).find('.btm-qty').val());
+    var shopify_qty = parseInt(jQuery(obj).find('[name*="updates"]').val());
+    /*If the shopify quantity is still a multiple of the base multiplier, assume the fake box changed*/
+    if(shopify_qty % multiplier == 0){
+      shopify_qty = btm_qty * multiplier;
+    }
+    else{
+      if(Math.round(shopify_qty/multiplier) < shopify_qty/multiplier){
+        btm_qty = parseInt(shopify_qty/multiplier) + 1;
+        shopify_qty = btm_qty * multiplier;
+      }
+      else{
+        btm_qty = parseInt(shopify_qty/multiplier);
+        shopify_qty = btm_qty * multiplier;
+      }
+    }
+
+    jQuery(obj).find('[name*="updates"]').val(shopify_qty);
+    jQuery(obj).find('.btm-qty').val(btm_qty);
+    console.log(shopify_qty, btm_qty)
+  });
+  jQuery.each(jQuery('.bold-master'), function(i, obj){
+    var qty;
+    if(jQuery(obj).find('.btm-qty').length)
+      qty = jQuery(obj).find('.btm-qty').val();
+    else
+      qty = jQuery(obj).find('[name*="updates"]').val();
+
+    jQuery('.bold-hidden[data-bold-id="' + jQuery(obj).data('bold-id') + '"] [name*="updates"]').val( qty );
+  });
+};
+
+Bold.removeBuilder = function(builder_id, success_callback, error_callback){
+  if(typeof(builder_id) !== 'undefined')
+    Bold.getCart(function(cart){ Bold.removeItemWithOptions(cart, builder_id, success_callback, error_callback) });
+}
+
+Bold.removeItemWithOptions = function(cart, builder_id, success_callback, error_callback){
+  Bold.updateItemWithOptions(cart, builder_id, 0, success_callback, error_callback);
+}
+
+Bold.upateBuilder = function(builder_id, qty, success_callback, error_callback){
+  if(typeof(builder_id) !== 'undefined')
+    Bold.getCart(function(cart){ Bold.updateItemWithOptions(cart, builder_id, qty, success_callback, error_callback) });
+}
+
+Bold.updateItemWithOptions = function(cart, builder_id, qty, success_callback, error_callback){
+  
+  var datastr = '';
+  for(var i in cart.items){
+    if(datastr.length > 1) datastr += '&';
+    console.log(cart.items[i].properties);
+    if(builder_id && cart.items[i].properties && (cart.items[i].properties.builder_id == builder_id || cart.items[i].properties._builder_id == builder_id || cart.items[i].builder_id == builder_id) ){
+      var line_qty = qty;
+      if(cart.items[i].qty_ratio) line_qty *= cart.items[i].qty_ratio;
+      
+      if(line_qty > 1000000) {
+        console.error('Update aborted: Updating quantities would put the product quantity over Shopify\'s 1,000,000 quantity limit.');
+        if(typeof(error_callback)==='function') error_callback();
+        return false;
+      }
+      datastr += 'updates[]=' + line_qty;
+    }
+    else
+      if (cart.items[i].true_qty)
+        datastr += 'updates[]=' + cart.items[i].true_qty;
+      else
+        datastr += 'updates[]=' + cart.items[i].quantity;
+  }
+
+  var params = { 
+    data: datastr, 
+    dataType: 'json', 
+    url:'/cart/update.js', 
+    method:"POST", 
+    success: function(data) {
+      if(typeof(success_callback)==='function')
+        success_callback(data);
+      else if(typeof(Shopify.onCartUpdate)==='function')
+        Shopify.onCartUpdate(data)
+        },
+    error: function(t, e) {
+      if(typeof(error_callback)==='function')
+        error_callback(t, e);
+      else if(typeof(Shopify.onError)==='function')
+        Shopify.onError(t, e);
+    }
+  };
+  jQuery.ajax(params);
+  
+}
+
+Bold.changeItem = function(line, qty, success_callback, error_callback){
+  var index = line - 1; //Shopify uses 1-based indexing
+  //Get the cart to see if the given line item hasa builder ID. If it does, use our code. Otherwise, just update the line normally.
+  Bold.getCart(function(cart){
+    if(cart.items[index].builder_id)
+      Bold.updateItemWithOptions(cart, cart.items[index].builder_id, qty, success_callback, error_callback);
+    
+    else{
+      //Make sure that BTM products are correctly updated 
+      if(cart.items[index].qty_ratio) qty *= cart.items[index].qty_ratio;
+      
+      var params = {
+        type: "POST",
+        url: "/cart/change.js",
+        data: "quantity=" + qty + "&line=" + line,
+        dataType: "json",
+        success: function(data) {
+          if(typeof(success_callback)==='function')
+            success_callback(data);
+          else if(typeof(Shopify.onCartUpdate)==='function')
+            Shopify.onCartUpdate(data)
+        },
+        error: function(t, e) {
+          if(typeof(error_callback)==='function')
+            error_callback(t, e);
+          else if(typeof(Shopify.onError)==='function')
+            Shopify.onError(t, e);
+        }
+      };
+      jQuery.ajax(params);
+    }
+  });
+  
+}
+
+Bold.propertiesDisplay = function(properties){
+  if(typeof(properties) !== "object")
+    return "";
+  
+  var property_desc = '<div class="bold-properties">';
+  for(var key in properties){
+    property_desc += '<div class="bold_option_line"><span class="bold_option_title">' + key + '</\span><span class="bold_option_seperator">: </\span><span class="bold_option_value">' + properties[key] + '</\span></div>';
+  }
+  property_desc += '</div>';
+  return property_desc;
+};
+
+//     Bold: Helper for using Quantity Breaks with Quick-Shop
+Bold.update_message_quickshop = function(productID){
+jQuery("#shappify-qty-msg-" + productID).html(jQuery('[data-product-id="' + productID +'"] #variant_html_' + jQuery('[data-product-id="' + productID +'"] [name="id"]').val()).html());
+
+if(jQuery('[data-product-id="' + productID +'"] [name="id"]:checked').length){
+  jQuery("#shappify-qty-msg-" + productID).html(jQuery('[data-product-id="' + productID +'"] #variant_html_' + jQuery("[name='id']:checked").val()).html());
+}
+  var prds=jQuery(".shapp_qb_prod");
+  var i=0;
+  for(i=0;i<prds.length;i++){
+    var shapp_var_id=jQuery(prds[i]).find("[name='id']").val();
+    var shapp_message=jQuery("#variant_html_"+ shapp_var_id).html();
+    var shapp_message_container=jQuery(prds[i]).find(".shappify-qty-msg");
+    shapp_message_container.html(shapp_message);
+  }
+}
+
+// Bold: Helper functions for updating BTM quantities and updating old BTM installs with new BTM property fields
+Bold.upgradeBTMFields = function(form){
+  var $form = jQuery(form);
+  $form.find('.btm_upgrade').remove();  //Remove the BTM upgrade fields (if they exist) before adding new ones
+  $form.find('.btm_quantity_input[name="properties[quantity]"]').attr('name', 'properties[_btm_quantity]')
+  
+  if($form.find('.bold-btm .measurement_div').length){
+    var btm_qty = 1;
+    
+    if($form.find('.btm_quantity_input').length)
+      btm_qty = parseInt($form.find('.btm_quantity_input').attr('name', "properties[_btm_quantity]").val());
+    else
+      $form.prepend('<input type="hidden" class="btm_upgrade btm_qty" name="properties[_btm_quantity]" value=' + btm_qty + '>');
+
+    var true_qty = parseInt($form.find('[name="quantity"]').last().val());
+    var btm_ratio = true_qty / btm_qty;
+    
+    var option_qty_input = '<input type="hidden" class="btm_upgrade btm_options" name="quantity" value=' + btm_qty + '>';
+    var btm_ratio_input = '<input type="hidden" class="btm_upgrade btm_ratio" name="properties[_btm_ratio]" value=' + btm_ratio + '>'
+    $form.prepend(option_qty_input).prepend(btm_ratio_input);
+  }
+  
+}
+
+
+/*  Shopify API functions that we need but are not guaranteed to pre-exist on the site   */
+Bold.getCart = function(t) {
+    jQuery.getJSON("/cart.js", function(e, n) {
+        "function" == typeof t ? t(Bold.cleanCart(e)) : Shopify.onCartUpdate(Bold.cleanCart(e));
+    });
+};
+
+Bold.addItemFromForm = function(form, success_callback, error_callback){		
+  var data, contentType, processData;		
+
+  var dataSelector;		
+  /* Some like to pass the ID, some like to pass the actual form. Check what's coming so we can be all-purpose and agnostic */		
+  if(typeof(form)==='string')		
+    dataSelector = '#' + form;		
+  else		
+    dataSelector = '#' + $(form).attr('id');		
+  if(typeof(FormData)==='function'){		
+    /* Using FormData we can replace the AJAX submit with a submit that sends uploaded files */		
+    data = new FormData(document.querySelector(dataSelector));		
+    contentType = false;		
+    processData = false;		
+  }		
+  else{		
+    /* Failsafe conditions for older browsers */		
+    if(jQuery(dataSelector).find('input[type="file"]').length){		
+      //File inputs exist - do a proper form submit and skip the fancy ajax-ing		
+      jQuery(dataSelector).submit();		
+      return false;		
+    }		
+
+    data = jQuery(dataSelector).serialize();		
+    contentType = 'application/x-www-form-urlencoded; charset=UTF-8';		
+    processData = 'true';		
+  }		
+  var params = {		
+    url: '/cart/add',		
+    data: data,		
+    processData: processData,		
+    contentType: contentType,		
+    type: 'POST',		
+    dataType: 'json',		
+
+    success: function(result){		
+      if(typeof(success_callback)==='function')		
+        success_callback(result);		
+      else if (typeof(Shopify.onItemAdded)==='function')		
+        Shopify.onItemAdded(result)		
+        },		
+
+    error: function(a, b){		
+      if(typeof(error_callback)==='function')		
+        success_callback(a, b);		
+      else if (typeof(Shopify.onError)==='function')		
+        Shopify.onError(a, b)		
+        }		
+  };		
+  $.ajax(params);		
+};
+
+Bold.updateCartFromForm = function(t, e) {
+    var n = {
+        type: "POST",
+        url: "/cart/update.js",
+        data: jQuery("#" + t).serialize(),
+        dataType: "json",
+        success: function(t) {
+            "function" == typeof e ? e(Bold.cleanCart(t)) : Shopify.onCartUpdate(Bold.cleanCart(t))
+        },
+        error: function(t, e) {
+            Shopify.onError(t, e)
+        }
+    };
+    jQuery.ajax(n)
+}
+
+jQuery(document).ready(function(){ jQuery('.bold-remove-on-load').remove(); });
+
+{% comment %}
+/* Below are sample script blocks that can be copied and pasted into the theme's AJAX file   */
+  
+//Include this right before the Ajax call to update the cart from the cart form
+//Bold: Ensure the linked hidden options are also updated
+  if(typeof(Bold) === 'object' && typeof(Bold.updateQtyBoxes) === 'function' )
+    Bold.updateQtyBoxes();
+  
+  
+// Include this at the beginning of the function that builds the cart in Javascript
+//Bold: Ensure the cart's line items have been updated with their option information
+  if(typeof(Bold) === 'object' && typeof(Bold.cleanCart) === 'function' )
+    cart = Bold.cleanCart(cart);
+    
+// Include this at the beginning of the item loop when building the cart in Javascript
+// Bold: Additional information for Options display
+  var properties_display = "", bold_id = "", bold_class = "";
+  if(typeof(Bold) === 'object' && typeof(Bold.propertiesDisplay) === 'function' )
+    var properties_display = Bold.propertiesDisplay(item.properties);
+  if(item.builder_id)
+    bold_id = item.builder_id;
+  if(item.builder_type)
+    bold_class = item.builder_type;
+  
+// Include this at the beginning of the function that runs when adding a product to cart (remember to change a 'submit' event to an appropriate 'click' event!)
+  //Bold: Validate options
+  var product_id = $(this).closest('form').data('product-id');
+  if(typeof(window['bold_qb_submit_' + product_id]) === 'function' && !window['bold_qb_submit_' + product_id]())
+    return false;
+  //Bold: End of validation
+  
+  // Include this at the beginning of the function that adds products to the cart to upgrade BTM to work with Premium Options
+  //Bold: Upgrade BTM
+  var product_form = $(this).closest('form');
+  if(typeof(Bold) === 'object' && typeof(Bold.upgradeBTMFields) === 'function')
+    Bold.upgradeBTMFields(product_form);
+  //Bold: End of BTM Upgrade
+  
+  //Right before the closing </head> tag, include the above files: 
+    {{ 'bold.css' | asset_url | stylesheet_tag }}
+    {{ 'bold-helper-functions.js' | asset_url | script_tag }}
+
+  {% endcomment %}

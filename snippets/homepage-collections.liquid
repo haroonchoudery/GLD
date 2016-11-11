@@ -1,0 +1,18 @@
+<div class="row homepage-section no-fouc">
+  {% for link in linklists[settings.homepage-collection-linklist].links %}
+  {% assign collection = link.object %}
+  <div class="desktop-12 tablet-6 mobile-3">
+    <h2>{{ collection.title }}</h2>  
+    <div class="product-collection-carousel">      
+        {% for product in collection.products limit: settings.homepage-collection-limit %}
+      <div class="product-car">
+        {% assign products-per-row = settings.products-per-row %}
+        <div class="product-index" data-alpha="{{ product.title }}" data-price="{{ product.price }}">         
+          {% include 'product-listing' with collection %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>     
+  </div> 
+  {% endfor %}
+</div>

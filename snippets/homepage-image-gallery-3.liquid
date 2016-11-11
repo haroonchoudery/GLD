@@ -1,0 +1,38 @@
+<!-- minified to prevent inline-block spacing -->
+<section id="index-social" class="row homepage-section no-fouc">
+<h2 class="desktop-12 mobile-3">{{ 'layout.homepage.instagram' | t }}</h2>
+{% if settings.g2_full_width %}
+<div class="gridlock-fluid">
+  <div class="row">
+{% endif %}
+    	<div class="row homepage-section no-fouc">
+          	{% for i in (9..12) %}
+          		{% assign image='promo_image_' | append: i %}{% assign image_grid_url='image_grid' | append: i | append: '_url' %}
+          		{% assign image_grid_alt='image_grid' | append: i | append: '_alt' %}{% assign image_grid_img_url='image_grid' | append: i | append: '.jpg' %}
+          		{% assign image_grid_title='image_grid' | append: i | append: '_title' %}
+          		{% assign image_grid_hidden='image_grid' | append: i | append: '_hidden' %}
+          		{% assign grid=0 %}
+          		{% if settings.promo_image_9 %}{% assign grid=grid | plus: 1 %}{% endif %}
+          		{% if settings.promo_image_10 %}{% assign grid=grid | plus: 1 %}{% endif %}
+          		{% if settings.promo_image_11 %}{% assign grid=grid | plus: 1 %}{% endif %}
+          		{% if settings.promo_image_12 %}{% assign grid=grid | plus: 1 %}{% endif %}
+          		{% if grid > 0 %}
+          		{% if settings[image] %}
+          		<div class="homepage-promo desktop-{{12 | divided_by: grid}} tablet-{{6 | divided_by: grid}} mobile-3{% if settings.g2_full_width %} centered{% endif %}">
+                  <a href="{{settings[image_grid_url]}}">
+                    <img src="{{image_grid_img_url | asset_url}}" alt="{{settings[image_grid_title]}}">
+                    	<div class="caption">
+                          	<h3>{{settings[image_grid_title]}}</h3>
+                          	<p>{{settings[image_grid_hidden]}}</p>
+                    	</div>
+                  </a>
+          		</div>
+          		{% endif %}
+          		{% endif %}
+          		{% endfor %}
+    	</div>
+    {% if settings.g2_full_width %}
+  </div>
+</div>
+</section>
+{% endif %}

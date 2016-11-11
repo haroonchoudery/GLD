@@ -1,0 +1,48 @@
+
+
+{% include 'buyx-price-min' with product %}
+
+  <div class="prod-container">
+    {% if product.available %}
+    {% for col in product.collections %}
+    {% if col.handle == 'new' %}
+    <div class="new icn">{{ 'products.general.new' | t }}</div>
+    {% endif %}
+    {% endfor %}
+    {% if buyx_price_min < product.compare_at_price %}
+    <div class="sale-item icn">{{ 'products.general.sale' | t }}</div>
+    {% endif %}
+    {% else %}
+    <div class="so icn">{{ 'products.general.sold' | t }}</div>
+    {% endif %}
+    {% if product.template_suffix == 'pre-order' %}
+    <div class="pre-order icn">{{ 'products.product.pre_order' | t }}</div>
+    {% endif %}
+   
+    <a href="{{ product.url | within: collection }}" title="{{ product.title | escape }}">
+      {% assign foo2 = product.featured_image | img_url: 'grande' %}
+      <img src="{% include 'imgix' src:foo2 q:40 %}" alt="{{ product.title | escape }}" />
+    </a>  
+
+  </div>
+  <div class="product-info"> 
+    <a href="{{ product.url | within: collection }}"> 
+      {% if settings.vendor %}<p>{{ product.vendor }}</p>{% endif %}
+      <h3>{{ product.title }}</h3>
+    </a>
+    <div class="price">
+      {% if buyx_price_min < product.compare_at_price %}
+      <div class="onsale">{{ buyx_price_min | money }}</div>
+      <div class="was">{{ product.compare_at_price | money }}</div>
+      {% else %}
+      <div class="prod-price">{% if product.price_max > buyx_price_min %} {{ 'products.general.from' | t }}
+        {{ buyx_price_min | money }} - {{ product.price_max | money }} {% else %}{{ buyx_price_min | money }}{% endif %}
+      </div>
+      {% endif %}	
+    </div>
+  </div>
+
+
+  {% if settings.quickview %}
+  <a class="fancybox.ajax product-modal" href="{{ product.url }}?view=quick">{{ 'products.general.quick_view' | t }}</a>
+  {% endif %}

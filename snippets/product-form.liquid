@@ -1,0 +1,174 @@
+{% include 'buyx-product' with product %}
+{% include 'buyx-price-min' with product %} 
+
+<form action="/cart/add" method="post" class="shappify_add_to_cart_form" data-product-id="{{ product.id }}" data-money-format="{{ shop.money_format }}" data-option-index="{{ option_index }}" id="product-form-{{ product.id }}" enctype="multipart/form-data">
+  {% if product.options.size > 1  and product.options[1] != "BuyXDiscount" %}
+  <div class="select">
+    <select id="product-select-{{ product.id }}" name='id'>
+      {% for variant in product.variants %}
+        {% unless variant.title contains '% Off' %}
+      <option {% if variant == product.selected_or_first_available_variant %} selected="selected" {% endif %} data-sku="{{ variant.sku }}" value="{{ variant.id }}">{{ variant.title }} - {{ variant.price | money }}</option>
+        {% endunless %}
+      {% endfor %}
+    </select>
+  </div>
+    {% elsif buyx_select_one_option and buyx_product_variants_size > 1 %}
+
+  <div class="select">
+    <label>{{ product.options[0] }}</label>
+    <select id="product-select-{{ product.id }}" name='id'>
+      {% for variant in product.variants %}
+        {% unless variant.title contains '% Off' %}
+      <option {% if variant == product.selected_or_first_available_variant %} selected="selected" {% endif %} data-sku="{{ variant.sku }}" value="{{ variant.id }}">{{ variant.title }} - {{ variant.price | money }}</option>
+        {% endunless %}
+      {% endfor %}
+    </select>
+  </div>
+  {% else %}
+  <div class="what-is-it">
+    {% if product.options.first != 'Title'  and product.options.first != 'BuyXDiscount'  %}
+    <label>{{ product.options.first }}:</label>
+    {% for variant in product.variants %}
+      {% unless variant.title contains '% Off' %}
+    <span class="it-is">{{ variant.option1 | escape }}
+    </span>
+      {% endunless %}
+    {% endfor %}
+    {% endif %}
+  </div>
+  <div class="product-variants"></div><!-- product variants -->  
+  <input  type="hidden" id="{{ variant.id }}" name="id" data-sku="{{ variant.sku }}" value="{{ product.variants[0].id }}" />    
+  {% endif %}
+
+  {% if buyx_product_available %}  
+  <div id="product-add">
+    <label for="quantity">{{ 'products.product.quantity' | t }}</label> 
+    <input min="1" type="number" id="quantity" name="quantity" value="1" />
+    <input type="submit" name="button" class="add" value="{{ 'products.product.add_to_cart' | t }}" />
+  </div>
+  <p class="add-to-cart-msg"></p>
+  {% endif %}
+
+  <div class="clear"></div>
+
+  <!-- Bold: Options 3-2 -->
+  {% include 'shappify-options' %}
+  <!-- // end Options 3-2 -->
+  
+</form>
+
+{% if template contains 'product' %}
+
+<!--
+<ul id="popups">
+  {% if settings.popup_1 %}<li class="first"><a href="#pop-one" class="fancybox">{{ pages[settings.popup-one].title }}</a></li>{% endif %}
+  {% if settings.popup_2 %}<li><a href="#pop-two" class="fancybox">{{ pages[settings.popup-two].title }}</a></li>{% endif %}
+  {% if settings.popup_3 %}<li><a href="#pop-three" class="fancybox">{{ pages[settings.popup-three].title }}</a></li>{% endif %}
+  {% if settings.popup_4 %}<li class="last"><a href="#pop-four" class="fancybox">{{ 'products.product.popup_question' | t }}</a></li>{% endif %}
+</ul>
+-->
+
+<div id="pop-one" style="display: none">{{ pages[settings.popup-one].content }}</div>
+<div id="pop-two" style="display: none">{{ pages[settings.popup-two].content }}</div>
+<div id="pop-three" style="display: none">{{ pages[settings.popup-three].content }}</div>
+<div id="pop-four" style="display: none">{% include 'question' %}</div>
+
+
+{% endif %}
+  
+
+
+<script>
+  // Shopify Product form requirement
+  selectCallback = function(variant, selector) {
+    var $product = $('#product-' + selector.product.id);    
+    if (variant && variant.available == true) {
+      if(variant.compare_at_price > variant.price){
+        $('.was', $product).html(Shopify.formatMoney(variant.compare_at_price, $('form', $product).data('money-format')))        
+      } else {
+        $('.was', $product).text('')
+      } 
+      $('.product-price', $product).html(Shopify.formatMoney(variant.price, $('form', $product).data('money-format'))) 
+      $('.add', $product).removeClass('disabled').removeAttr('disabled').val('{{ 'products.product.add_to_cart' | t }}');
+        } else {
+        var message = variant ? "{{ 'products.product.sold_out' | t }}" : "{{ 'products.product.sold_out' | t }}";
+        $('.was', $product).text('')
+      $('.product-price', $product).text(message);
+      $('.add', $product).addClass('disabled').attr('disabled', 'disabled').val(message); 
+    } 
+
+
+    if (variant && variant.featured_image) {
+      var original_image = $(".bigimage-{{ product.id }} img"), new_image = variant.featured_image;
+		Shopify.Image.switchImage(new_image, original_image[0], function (new_image_src, original_image, element) {
+
+        $(element).attr('src', new_image_src);   
+
+        $('.thumbnail[data-image-id="' + variant.featured_image.id + '"]').trigger('click');
+
+        {% if template contains 'product' %}        
+        $('.zoomImg').attr('src', new_image_src);
+        {% endif %}
+      });
+    }    
+  }; 
+</script>
+
+{% if buyx_product_variants_size > 1 or product.options.size > 1 %}
+<script type="text/javascript">
+
+
+  $(function() {
+
+    $product = $('#product-' + {{ product.id }});
+      if($('.single-option-selector', $product).length == 0) {          
+      
+       
+function buyx_product_json(product) {
+     if (product == null) {
+          return null
+     }
+     var variants = []
+     //does it have BuyXDiscount option?
+     var option_position = -1
+     for (var oi = 0, olen = product.options.length; oi < olen; oi++) {
+         if (product.options[oi] == "BuyXDiscount") {
+             option_position = oi+1
+             break
+         }
+     }
+     if (option_position == -1) {
+         return product
+     }
+     if (product.options.length > 1) {
+          product.options.splice(option_position-1, 1)
+     } else {
+          product.options[0] = "Title"
+     }
+     option_position = "option" + option_position
+     product.available = false
+     for (var vi = 0, vlen = product.variants.length; vi < vlen; vi++) {
+         if (product.variants[vi][option_position] == "Default") {
+             //product.variants[vi][option_position] = ""
+             variants.push(product.variants[vi])
+             product.available = product.available || product.variants[vi].available
+         }
+     }
+     product.variants = variants
+     return product
+  }
+
+    
+      new Shopify.OptionSelectors("product-select-{{ product.id }}", { product: buyx_product_json({{ product | json }}), onVariantSelected:
+      selectCallback{% if template contains 'product'%}, enableHistoryState: true{% endif %} });
+    }
+
+ jQuery('.selector-wrapper').filter(function() {
+  return jQuery(this).find('option').size() === 1
+}).hide();
+  });    
+
+
+</script>
+{% endif %}
+
