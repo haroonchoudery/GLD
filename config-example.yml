@@ -1,0 +1,17 @@
+development:
+  password: 16ef663594568325d64408ebcdeef528
+  theme_id: "123"
+  store: can-i-buy-a-feeling.myshopify.com
+  proxy: http://localhost:3000
+
+production:
+  password: 16ef663594568325d64408ebcdeef528
+  theme_id: "456"
+  store: can-i-buy-a-feeling.myshopify.com
+  timeout: 60s
+  
+test:
+  password: 16ef663594568325d64408ebcdeef528
+  theme_id: "789"
+  store: can-i-buy-a-feeling.myshopify.com
+  ignores: ignore.txt
