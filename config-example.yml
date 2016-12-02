@@ -1,17 +1,32 @@
-development:
-  password: 16ef663594568325d64408ebcdeef528
-  theme_id: "123"
-  store: can-i-buy-a-feeling.myshopify.com
-  proxy: http://localhost:3000
-
 production:
-  password: 16ef663594568325d64408ebcdeef528
-  theme_id: "456"
-  store: can-i-buy-a-feeling.myshopify.com
-  timeout: 60s
-  
-test:
-  password: 16ef663594568325d64408ebcdeef528
-  theme_id: "789"
-  store: can-i-buy-a-feeling.myshopify.com
-  ignores: ignore.txt
+  password: 
+  theme_id: "64267077"
+  store: the-gld-shop.myshopify.com
+  timeout: 30s
+  ignore_files:
+    - "*.gif"
+    - "*.jpg"
+    - "*.png"
+    - "*.svg"
+    - "*.eot"
+    - "*.tff"
+    - "*.ttf"
+    - "*.otf"
+    - "*.woff"
+    - config/settings_data.json
+development:
+  password:
+  theme_id: "149887881"
+  store: the-gld-shop.myshopify.com
+  timeout: 30s
+  ignore_files:
+    - "*.gif"
+    - "*.jpg"
+    - "*.png"
+    - "*.svg"
+    - "*.eot"
+    - "*.tff"
+    - "*.ttf"
+    - "*.otf"
+    - "*.woff"
+    - config/settings_data.json
