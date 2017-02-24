@@ -1,0 +1,63 @@
+.site-footer, .page-wrap::after {
+  height:0px;
+}
+.button:hover, button:hover {
+  background:none;
+}
+.c-metal-type__choice .button:hover, 
+.c-metal-type__choice button:hover {
+  color:#000; 
+}
+#desktop { min-height:650px; }
+#desktop.fixed {
+  position:fixed;
+  top:0px;
+  width:100%;
+  background-color:#dad9d5;
+}
+#desktop .c-choice-panel--metal-type .c-metal-type__choices .c-metal-type__choice,
+#desktop .c-choice-panel--metal-type .c-metal-type__title,
+#desktop .c-choice-panel--metal-type .c-choice-panel__info,
+.o-diamond-btn {
+  font-family:'Conv_Proxima Nova Bold' !important;
+  font-weight:normal !important;
+}
+#desktop .c-choice-panel--metal-type .c-metal-type__title {
+  line-height:1.5;
+  letter-spacing:0px;
+  font-size:28px !important;
+}
+#desktop .c-chain-items .c-chain-items-item {
+  margin-top:5px !important; 
+}
+#desktop .c-header-summary__row .c-chain-items-item {
+/*  position:absolute;
+  bottom:30px; */
+}
+#desktop .c-chain-items-image-black {
+/*  position:absolute;
+  margin:-50px auto 0px; */
+}
+.c-choice-panel--pendant-style__choices .c-choice:hover {
+  z-index:1; 
+}
+
+/* [DM] Positions */
+#mobile .c-preview-layer--chain-outlines {
+    position: absolute;
+    top: 20px;
+    width: 100vw;
+    height: 100vh;
+}
+#mobile .c-preview-layer--chains {
+    position: absolute;
+    top: 38px;
+    width: 100vw;
+    height: 100vh;
+}
+#mobile .c-preview-layer--pendants {
+    position: absolute;
+    top: 34px;
+    width: 100vw;
+    height: 100vh;
+}

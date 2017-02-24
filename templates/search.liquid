@@ -13,7 +13,12 @@
 
 <div class="desktop-12 tablet-6 mobile-3">
   <div id="product-loop">
-    {% for item in search.results %}    
+    {% for item in search.results %}
+    {%- assign hidden = false -%}
+    {%- for tag in item.tags -%}
+    {%- if tag == 'hidden' -%}{%- assign hidden = true -%}{%- endif -%}
+	{%- endfor -%}
+    {%- if hidden -%}{%- continue -%}{%- endif -%}
     <!-- Bold D&H //search -->
 	{% if item.metafields.inventory.ShappifyHidden == "true" %}{% continue %}{% endif %}
 	<!-- // end search D&H -->

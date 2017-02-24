@@ -273,16 +273,29 @@ function renderHoverCart(cart) {
       });
     }
     
+    var item_title = o.title;
+    var item_image = o.image ? o.image.replace(/\.jpg/,"_thumb.jpg") : "//cdn.shopify.com/s/assets/admin/no-image-compact-1cfae84eca4ba66892099dcd26e604f5801fdadb3693bc9977f476aa160931ac.gif";
+    if (o.handle == customHandle) {
+      item_title = o.product_title;
+      $.each(o.properties, function(key, value) {
+        if (key.slice(0,1) !== "_") {
+          // item_title += ' - '+key+': '+value;
+        }
+      });
+      item_image = customImage;
+    }
+    
     items.push({
       id: o.id,
       quantity: o.quantity,
       /*total: Shopify.api.formatMoney(o.line_price),*/
       total: Shopify.api.formatMoney(options_item_price * o.quantity),
-      title: o.title,
+      title: item_title,
       url: o.url,
       /*price: Shopify.api.formatMoney(o.price),*/
       price: Shopify.api.formatMoney(options_item_price),
-      image: o.image ? o.image.replace(/\.jpg/,"_thumb.jpg") : "//cdn.shopify.com/s/assets/admin/no-image-compact-1cfae84eca4ba66892099dcd26e604f5801fdadb3693bc9977f476aa160931ac.gif",
+      /*image: o.image ? o.image.replace(/\.jpg/,"_thumb.jpg") : "//cdn.shopify.com/s/assets/admin/no-image-compact-1cfae84eca4ba66892099dcd26e604f5801fdadb3693bc9977f476aa160931ac.gif",*/
+      image: item_image,
       bold_qty_class: bold_qty_class,
       bold_hide_row: bold_hide_row,
       bold_builder_id: bold_builder_id,

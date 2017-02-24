@@ -1,11 +1,17 @@
 {% for item in cart.items %}
 <div class="quick-cart-item">
   <div class="desktop-2 centered">
+    {% if item.product.handle == custom_handle %}
+    <a href="{{ item.url }}" title="{{ item.product.title | escape }}">
+      <img src="{{ item.product | img_url: 'small' }}"  alt="{{ item.title | escape }}" />        
+    </a>
+    {% else %}
     <a href="{{ item.url }}" title="{{ item.product.title | escape }}">
       <img src="{{ item | img_url: 'small' }}"  alt="{{ item.title | escape }}" />        
     </a>
+    {% endif %}
   </div>
-  <div class="desktop-4 centered l-align">
+  <div class="desktop-4 centered l-align" data-handle="{{ item.product.handle }}">
     <a href="{{ item.url }}">{{ item.product.title }}</a>
   </div>
     <div class="desktop-2 centered">

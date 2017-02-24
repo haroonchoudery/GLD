@@ -1,5 +1,130 @@
 <div class="desktop-12 tablet-6 mobile-3 page">
-<h1 id="page-title">{{ page.title }}</h1>
+<div class="rewards">
+	<div class="container">
+		<div class="banner">
+			<div class="img-holder">
+              <img src="{{ 'banner-img.jpg' | asset_url }}">
+			</div>
+		</div>
+      
+      	{% if customer %}
+	      <div class="points-block">      	
+    	    <h1>
+              <span class="swell-point-balance">0</span>
+              points
+            </h1>
+          </div>
+      	{% else %}
+		<div class="user-login">
+			<p>Log in or sign up to start earning coins right now.</p>
+			<div class="divider"></div>
+			<div class="btn-block">
+              <a href="/account/login"><button class="btn btn-default login-btn">login</button></a>
+              <a href="/account/register"><button class="btn btn-default signup-btn">Signup</button></a>
+			</div>
+		</div>
+      	{% endif %}
+      
+		<div class="point-block">
+          	
+          	<div class="row">
+              <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                  <div class="col-item swell-campaign-link" data-campaign-id="150111" data-display-mode="modal">
+                      <div class="img-holder">
+                        <img src="{{ 'icon-1.png' | asset_url }}">
+                      </div>
+                      <h2>100 Coins </h2>
+                      <p>for creating an account</p>
+                  </div>
+              </div>
+              <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                  <div class="col-item swell-campaign-link" data-campaign-id="150110" data-display-mode="modal">
+                      <div class="img-holder">
+                        <i style="font-size:72px;" class="fa fa-instagram"></i>
+                      </div>
+                      <h2>100 Coins  </h2>
+                      <p>when you Follow</p>
+                  </div>
+              </div>
+              <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                  <div class="col-item no-border swell-campaign-link" data-campaign-id="139047" data-display-mode="modal">
+                      <div class="img-holder">
+                        <img src="{{ 'icon-3.png' | asset_url }}">
+                      </div>
+                      <h2>10 Coins </h2>
+                      <p>for every $1 you spend at the store</p>
+                  </div>
+              </div>
+          	</div>
+          
+          	<div class="row">
+              <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                  <div class="col-item swell-campaign-link" data-campaign-id="150109" data-display-mode="modal">
+                      <div class="img-holder">
+                        <img src="{{ 'icon-4.png' | asset_url }}">
+                      </div>
+                      <h2>2000 Coins </h2>
+                      <p>when you spend over $500</p>
+                  </div>
+              </div>
+              <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                  <div class="col-item swell-referral-link-popup">
+                      <div class="img-holder">
+                        <img src="{{ 'icon-5.png' | asset_url }}">
+                      </div>
+                      <h2>500 Coins </h2>
+                      <p>when you refer someone who <br> spends over $20</p>
+                  </div>
+              </div>
+              <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                  <div class="col-item no-border swell-campaign-link" data-campaign-id="157729" data-display-mode="modal">
+                      <div class="img-holder">
+                        <i style="font-size:72px;" class="fa fa-facebook"></i>
+                      </div>
+                      <h2>15 Coins  </h2>
+                      <p>when you share GLDShop on Facebook</p>
+                  </div>
+              </div>
+          </div>
+          
+          
+          	<div class="row">
+              <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                  <div class="col-item swell-campaign-link" data-campaign-id="158777" data-display-mode="modal">
+                      <div class="img-holder">
+                        <i style="font-size:72px;" class="fa fa-facebook"></i>
+                      </div>
+                      <h2>25 Coins </h2>
+                      <p>when you Like us on Facebook</p>
+                  </div>
+              </div>
+              <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                  <div class="col-item swell-campaign-link" data-campaign-id="154655" data-display-mode="modal">
+                      <div class="img-holder">
+                        <i style="font-size:72px;" class="fa fa-twitter"></i>
+                      </div>
+                      <h2>100 Coins </h2>
+                      <p>when you Follow us on Twitter</p>
+                  </div>
+              </div>
+              <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                  <div class="col-item no-border swell-campaign-link" data-campaign-id="154656" data-display-mode="modal">
+                      <div class="img-holder">
+                        <i style="font-size:72px;" class="fa fa-twitter"></i>
+                      </div>
+                      <h2>50 Coins  </h2>
+                      <p>when you send a tweet about us</p>
+                  </div>
+              </div>
+          </div>
+		</div>
+		<div class="reward-point">
+			<h3> How do I redeem my points?</h3>
+          <h4>You can redeem your points for discounts right at checkout.</h4>
+		</div>
+	</div>
+</div>
 
+  
   
 </div>

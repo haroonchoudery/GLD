@@ -1,0 +1,360 @@
+		<div id="desktop" class="o-container--desktop">
+          <div class="o-container-desktop-bg-grey" >
+				<div class="o-container-desktop-bg" ></div>
+			</div>        
+			<div class="c-header">
+				<div class="c-header__status" v-if="chains.length > 1"><span v-html="'Chain '+number_to_text(current_chain.index + 1)"></span>
+					<img src="{{ 'icon-carrot-w.svg' | asset_url }}" @click="chain_nav_toggle" v-if="!chain_navigation">
+					<img class="c-header__status-flip" src="{{ 'icon-carrot-w.svg' | asset_url }}" @click="chain_nav_toggle" v-if="chain_navigation">
+				</div>
+
+				<div class="c-header__item c-header__status-container" v-if="chains.length > 1 && chain_navigation">
+					<div class="c-header__status-options" v-for="(chains, index) in chains" v-if="!(index == current_chain.index)" @click="change_chain(index)">
+							<span v-html="'Chain '+number_to_text(index + 1)"></span>
+					</div>
+					<div class="c-header__status-options" @click="new_chain(), chain_nav_toggle()"
+						v-if="checkout_ready() && !max_chains_selected()">
+						<img src="{{ 'icon-expand-w.svg' | asset_url }}">
+						Another
+					</div>
+				</div>
+
+				<div class="c-header__item c-header-desktop__metal-type">
+					<transition name='fade' mode='out-in'><span :key="current_chain.metal.name" v-if="current_chain.metal.name" @click="update_chain(current_chain, 'metal')" :class="{ 'is-clickable' : step_selectable(current_chain.metal.name, true), 'c-header__item-disabled' : !step_is('metals') }"><span v-html="current_chain.metal.name"></span></span>
+                      <span v-else><span v-if="step_is('metals')">Choose</span> Metal Type</span></transition>
+				</div>
+				<div class="c-header__border"></div>
+				<div class="c-header__item c-header-desktop__chain-length">
+					<transition name='fade' mode='out-in'><span :key="current_chain.size.size" v-if="current_chain.size.size" @click="update_chain(current_chain, 'size')" class='is-clickable' v-bind:class="{ 'c-header__item-disabled' : !step_is('sizes') }"><span v-html="current_chain.size.size"></span> Inches</span>
+					<span v-else @click="next_step_selected(current_chain, current_chain.metal.name, 'size')"
+					:class="{ 'is-clickable' : step_selectable(current_chain.size.size, current_chain.metal.name) }">
+                      <span v-if="step_is('sizes')">Choose</span> Chain Length</span></transition>
+				</div>
+				<div class="c-header__border"></div>
+				<div class="c-header__item c-header-desktop__chain-style">
+					<transition name='fade' mode='out-in'><span :key="current_chain.style.name" v-if="current_chain.style.name" @click="update_chain(current_chain, 'style')" class='is-clickable' v-bind:class="{ 'c-header__item-disabled' : !step_is('styles') }"><span v-html="current_chain.style.name"></span></span>
+					<span v-else @click="next_step_selected(current_chain, current_chain.size.size, 'style')"
+					:class="{ 'is-clickable' : step_selectable(current_chain.style.name, current_chain.size.size) }">
+                      <span v-if="step_is('styles')">Choose</span> Chain Style</span></transition>
+				</div>
+				<div class="c-header__border"></div>
+				<div class="c-header__item c-header-desktop__pendant-type">
+					<transition name='fade' mode='out-in'><span :key="current_chain.pendant.name" v-if="current_chain.pendant.name" @click="update_chain(current_chain, 'pendant')" class='is-clickable' v-bind:class="{ 'c-header__item-disabled' : !step_is('pendants') }"><span v-html="display_name(current_chain.pendant.name)"></span></span>
+					<span v-else @click="next_step_selected(current_chain, current_chain.style.name, 'pendant')"
+					:class="{ 'is-clickable' : step_selectable(current_chain.pendant.name, current_chain.style.name) }">
+                      <span v-if="step_is('pendants')">Choose</span> Pendant Type</span></transition>
+				</div>
+				<div class="c-header__border"></div>
+				<div class="c-header__item c-header-desktop__total">Total <span v-if="display_total()"><span v-html=" '$' + get_total_price()"></span></span><span v-else>$0</span> <img src="{{ 'icon-carrot-w.svg' | asset_url }}" @click="view_summary(true)"></div>
+			</div>
+
+			<div class="c-header-container"
+				v-bind:class="{ 'summary-open' : summary}">
+				<div class="c-header-summary">
+					<div class="c-header-summary__metal">
+						<div class="c-header-summary__labels" v-show="chains[0].metal.name">Metal Type</div>
+
+						<div class="c-header-summary__metal-item" v-show="chains[0].metal.name">
+							<div class="c-chain-metal-image"><img v-bind:src="chains[0].metal.image"></div>
+							<div class="c-header-summary__metal-name"><span v-html="chains[0].metal.name"></span></div>
+							<button class="c-summary-button" @click="update_chain(current_chain, 'metal')">edit</button>
+						</div>
+					</div>
+					<div class="c-header-summary__components">
+						<div v-if="check_chain()">
+							<div class="c-header-summary__labels">
+								<div class="c-chain-num"></div>
+								<div class="c-chain-items"><span>Chain Length</span></div>
+								<div class="c-chain-items"><span>Chain Style</span></div>
+								<div class="c-chain-items"><span>Pendant Type</span></div>
+								<div class="c-chain-items c-chain-items-last"><div><button class="c-summary-button c-button-close" @click="view_summary(false)"><img src="{{ 'icon-close-w.svg' | asset_url }}"></button></div></div>
+							</div>
+							<div class="c-header-summary__row" v-for="(chain, index) in chains">
+								<div class="c-chain-num"><span v-html="'Chain '+number_to_text(index + 1)"></span></div>
+								<div class="c-chain-items" @click="update_chain(chain, 'size')" >
+									<div class="c-chain-items-image"
+										v-bind:class="{ 'c-chain-items-image-black' : chain.size.size != null}">
+										<img :src="chain.size.image_icon_desktop" v-if="chain.size.size != null">
+										<!-- <div class="c-chain-items-image-blank" v-else></div> -->
+									</div>
+									<div class="c-chain-items-item"><span v-html="chain.size.size"></span><span v-if="chain.size.size != null">"</span></div>
+									<button class="c-summary-button" v-show="chain.size.size != null">edit</button>
+								</div>
+								<div class="c-chain-items"  @click="update_chain(chain, 'style')" >
+									<div class="c-chain-items-image c-chain-items-image-style"
+										v-bind:class="{ 'c-chain-items-image-black' : chain.style.name != null}">
+										<img v-bind:src="chain.style.image_b" v-if="chain.style.name != null">
+										<!-- <div class="c-chain-items-image-blank" v-else></div> -->
+									</div>
+
+									<div class="c-chain-items-item"><span v-html="chain.style.name"></span></div>
+									<button class="c-summary-button"v-show="chain.style.name != null">edit</button>
+								</div>
+								<div class="c-chain-items" @click="update_chain(chain, 'pendant')" >
+									<div class="c-chain-items-image"
+										v-bind:class="{ 'c-chain-items-image-black' : chain.pendant.name != null}">
+										<img v-bind:src="chain.pendant.image" v-if="chain.pendant.name != null">
+										<!-- <div class="c-chain-items-image-blank" v-else></div> -->
+									</div>
+
+									<div class="c-chain-items-item"><span v-html="chain.pendant.name"></span></div>
+									<button class="c-summary-button"v-show="chain.pendant.name != null">edit</button>
+								</div>
+								<div class="c-chain-items c-chain-items-last">
+									<div class="c-chain-items-image"></div>
+									<div class="c-chain-items-name"><span v-html="'Chain '+number_to_text(index + 1)"></span><span class="c-price"></span></div>
+									<button class="c-summary-button" @click="remove_chain(index)" >remove</button>
+								</div>
+							</div>
+						</div>
+						<div v-else>
+							<div class="c-header-summary__row c-header-summary__empty">
+								<div class="c-header-summary__empty-message">
+									<div>Use the chain builder to create your custom set.</div>
+								</div>
+								<div class="c-chain-items c-chain-items-last">
+									<div class="c-summary-button-container"><button class="c-summary-button c-button-close" @click="view_summary(false)"><img src="{{ 'icon-close-w.svg' | asset_url }}"></button></div>
+								</div>
+							</div>
+
+						</div>
+					</div>
+				</div>
+				<div class="c-summary-add" v-if="check_values()">
+					<div class="c-summary-add-rope" v-if="!max_chains_selected()"></div>
+					<button class="c-summary-add-chain o-btn--diamond o-diamond-btn o-diamond-btn-black--add-chain-desktop"
+					@click="new_chain()" v-if="!max_chains_selected()" >
+							<div>+ <div v-if="chains.length == 1">Second</div><div v-if="chains.length == 2">Third</div> Chain<div class="c-summary-optional"><span v-if="chains.length == 1">(required)</span><span v-if="chains.length == 2">(optional)</span></div></div></button>
+					<button class="c-summary-add-chain-duplicate o-btn--diamond o-diamond-btn o-diamond-btn-black--add-chain-desktop" v-if="!max_chains_selected()">
+					</button>
+				</div>
+				<div class="c-header-summary-total">
+					<div class="c-total-saved"
+					v-bind:class="{ 'c-hidden' :  ( (get_discount() <= 0) || !(display_total()) )}"
+					>YOU SAVED  <span class="c-total-saved-value">$<span v-html="discount"></span></span></div>
+					<div class="c-total-price">
+                      <span class="c-total-total">TOTAL</span> 
+                      <span class="c-total-price-value">
+                        <span class="c-total-curr">$</span>
+                        <span v-if="display_total()">
+                          <span v-html="get_total_price()"></span>
+                        </span>
+                        <span v-else>0</span>
+                      </span>
+                  	</div>
+
+					<form action="/cart/add" method="post" enctype="multipart/form-data" id="AddToCartForm">
+<!--                       <span v-html="chosen_metal_variant"></span> -->
+<!-- 					  	<input v-for="(chain, index) in chains" type="hidden" name="id[]" :id="'variant_'+get_valid_variant(chain)" :value="get_valid_variant(chain)"> -->
+						<input type="hidden" name="id[]" :id="'variant_'+chosen_metal_variant.id" :value="chosen_metal_variant.id">
+                      	
+                        <input v-for="(chain, index) in chains" type="hidden" :name="'properties[Chain '+(index+1)+']'" 
+                               :id="'chain_'+index" 
+                               :value="chain.metal.name +' / '+ chain.size.size +'&quot; / '+ chain.style.name + ' / ' + chain.pendant.name">
+                      
+                      <div class="actions">
+							<button class="c-total-cart"
+							v-bind:class="{ 'c-total-cart-disabled' : !check_add_to_cart_ready()}">
+							ADD TO CART</button>
+						</div>
+
+					</form>
+					<div class="c-total-social">SHARE WITH
+						<span class="c-total-social-icons">
+							<a target="_blank" href="https://www.facebook.com/sharer.php?s=100&p%5Burl%5D={{ shop.url | append: product.url | url_param_escape }}"><span class="c-total-fb"><img src="{{ 'icon-facebook.svg' | asset_url }}"></span></a>
+							<a target="_blank" href="https://www.twitter.com/home?status={{ shop.url | append: product.url | url_param_escape }} via @https://twitter.com/shopgld"><span class="c-total-tw"><img src="{{ 'icon-twitter.svg' | asset_url }}"></span></a>
+						</span>
+					</div>
+				</div>
+			</div>
+
+			<div class="o-content">
+				<div class="o-container__chain-preview">
+					<transition name='switch-fade'><div class="c-switch-opaque" v-if="chain_navigation || summary"></div></transition>
+					<div class="o-container-chain-dots" v-show="step_is('sizes') || step_is('styles')">
+							<div class="o-container-chain-20-dot" v-show="check_chains_length(20)"
+							:class="{ 'hidden':!check_chain_dots(20) }"></div>
+							<div class="o-container-chain-24-dot" v-show="check_chains_length(24)"
+							:class="{ 'hidden':!check_chain_dots(24) }"></div>
+							<div class="o-container-chain-28-dot" v-show="check_chains_length(28)"
+							:class="{ 'hidden':!check_chain_dots(28) }"></div>
+							<div class="o-container-chain-30-dot" v-show="check_chains_length(30)"
+							:class="{ 'hidden':!check_chain_dots(30) }"></div>
+					</div>
+					<div class="o-container-chains" v-show="!step_is('metals')">
+						<div v-for="(style, index) in styles">
+							<div class="o-container-chain-20"
+							v-bind:class="'style'+'-'+index+'-20'"
+							v-bind:style="{ backgroundImage: 'url(' + style.image_20 + ')' }"
+							v-show="check_chains_style(20, style.name)"></div>
+							<div class="o-container-chain-24"
+							v-bind:class="'style'+'-'+index+'-24'"
+							v-bind:style="{ backgroundImage: 'url(' + style.image_24 + ')' }"
+							v-show="check_chains_style(24, style.name)"></div>
+							<div class="o-container-chain-28"
+							v-bind:class="'style'+'-'+index+'-28'"
+							v-bind:style="{ backgroundImage: 'url(' + style.image_28 + ')' }"
+							v-show="check_chains_style(28, style.name)"></div>
+							<div class="o-container-chain-30"
+							v-bind:class="'style'+'-'+index+'-30'"
+							v-bind:style="{ backgroundImage: 'url(' + style.image_30 + ')' }"
+							v-show="check_chains_style(30, style.name)"></div>
+						</div>
+					</div>
+
+					<div class="o-container-pendants"  v-show="!step_is('metals')">
+						<div v-for="(pendant,index) in pendants">
+							<div class="o-container-pendants-20">
+								<img class=""
+								v-bind:class="'pendant'+'-'+index+'-20'"
+								v-bind:src="pendant.image"
+								v-show="check_chains_pendant(20, pendant.name)">
+							</div>
+							<div class="o-container-pendants-24">
+								<img class=""
+								v-bind:class="'pendant'+'-'+index+'-24'"
+								v-bind:src="pendant.image"
+								v-show="check_chains_pendant(24, pendant.name)">
+							</div>
+							<div class="o-container-pendants-28">
+								<img class=""
+								v-bind:class="'pendant'+'-'+index+'-28'"
+								v-bind:src="pendant.image"
+								v-show="check_chains_pendant(28, pendant.name)">
+							</div>
+							<div class="o-container-pendants-30">
+								<img class=""
+								v-bind:class="'pendant'+'-'+index+'-30'"
+								v-bind:src="pendant.image"
+								v-show="check_chains_pendant(30, pendant.name)">
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<transition v-on:after-enter="getPreselected" v-on:leave-active="removePreselected">
+					<div class="c-choice-panel--metal-type" v-if="step_is('metals')">
+						<div class="c-metal-opaque"></div>
+
+						<div class="c-metal-type__title-container">
+							<h2 class="c-metal-type__title">Customize a set</h2>
+							<span><img src="{{ 'icon-carret-b.svg' | asset_url }}"></span>
+						</div>
+
+						<div class="c-metal-type__choices">
+							<div class="c-metal-type__choices-wrapper">
+
+								<div class="c-metal-type__choice" v-for="(metal, index) in metals" @click="select_metal_type(metal)">
+									<div class="c-metal-type__choice-title">
+										<div class="c-metal-type__choice-head"><span v-html="metal.name"></span></div>
+										<div class="c-metal-type__choice-description">
+											<span v-for="desc in metal_description" v-if="desc.metal == metal.name" v-html="desc.description"></span>
+										</div>
+									</div>
+
+									<button class="c-metal-type__price o-btn--diamond o-diamond-btn o-diamond-btn--large-desktop">
+									<span v-html="'$'+metal.price"></span></button>
+								</div>
+							</div>
+						</div>
+						<div class="c-choice-panel__info">
+							<span class='c-choice-panel__info-link' @click="open_modal_info()"><img src="{{ 'icon-questionmark-b.svg' | asset_url }}">Learn More</span>
+						</div>
+
+						<div class='c-metal-type__more_info modal'>
+							<div class="modal-content">
+                              	<span class="close-modal" @click="close_modal_info()"><img src="{{ 'icon-close-w.svg' | asset_url }}"></span>
+                              <div class='learn-more-modal-content'> {{ product.description }} </div>
+                              </div>
+						</div>
+					</div>
+				</transition>
+
+
+				<transition v-on:after-enter="getPreselected" v-on:leave-active="removePreselected">
+					<div class="c-choice-panel--chain-length" v-if="step_is('sizes')">
+						<div class="c-choice-panel-desktop--chain-length">
+							<div class="c-choice-panel--chain-length__choices">
+								<div class="c-choice" v-for="(size, index) in sizes"
+									v-bind:class="{'hidden-option' : !check_chains_button(size.size ),}">
+
+									<button class="c-chain-length__btn o-btn--diamond o-diamond-btn o-diamond-btn-black--small-desktop"
+									@click="select_size(size)"
+									:class="{ 'is-selected':current_chain.size == size,'hidden':!check_variants(size.size) }"
+									@mouseenter="focus_chain_length"
+									@mouseleave="remove_chain_length_focus">
+										<div><span class="c-choice-hover">add</span><span v-html="size.size+'&quot;'"></span></div>
+									</button>
+								</div>
+							</div>
+
+							<div class="c-choice-panel__info">
+								<div>Model Height 5' 10"</div>
+							</div>
+
+						</div>
+					</div>
+				</transition>
+
+				<transition v-on:after-enter="getPreselected" v-on:leave-active="removePreselected">
+					<div class="c-choice-panel--chain-style" v-if="step_is('styles')">
+						<div class="c-choice-panel__zoom"></div>
+
+                      	<div class='c-chain-style__choices-container'>
+                          <div id='chain-style-choice' class="c-chain-style__choices" >
+                              <button class="c-choice__navigation c-choice__navigation-up" @click="scroll_styles('up')" 
+								:class="{ 'is-visible' : check_scroll('top', 'styles') }"><img src="{{ 'icon-carrot-b-desktop.svg' | asset_url }}"></button>
+                              <div class='c-chain-style___container'>
+                                  <div class='c-chain-style__choices-list'>
+                                      <div class='c-chain-style__choice'
+                                      :class="{ 'is-selected' : current_chain.style == style, 'preselected' : current_chain.style == style }"
+                                      v-for="(style, index) in styles" @mouseover="removePreselected"
+                                      @mouseenter="hover_show_item('style',index)"
+                                      @mouseleave="hover_hide_item('style',index)"
+                                      v-bind:data-index="index" @click="select_style(style)"
+                                      v-if="check_variants(style.name)">
+                                          <div class="c-chain-style__choice-add"><img src="{{ 'icon-expand-w.svg' | asset_url }}"></div>
+                                          <div class='c-chain-style__name'> <span v-html="chain_style_size(style.name)"></span> </div>
+                                          <!--<div class='c-chain-style__length-desc'> 2mm </div>-->
+                                          <img v-if="current_chain.style == style" v-bind:src="style.image_w" class='chain-style-image' />
+                                          <img v-else v-bind:src="style.image_b" class='chain-style-image' />
+                                      </div>
+                                  </div>
+                              </div>
+                              <button class="c-choice__navigation c-choice__navigation-down" @click="scroll_styles('down')" 
+								:class="{ 'is-visible' : check_scroll('bottom', 'styles') }"><img src="{{ 'icon-carrot-b-desktop.svg' | asset_url }}"></button>
+                          </div>
+                      	</div>
+					</div>
+				</transition>
+
+				<transition v-on:enter="getPreselected" v-on:leave-active="removePreselected">
+					<div class="c-choice-panel--pendant-style" v-if="step_is('pendants')">
+						<div class="c-choice__left-block">
+							<button class="c-choice__navigation c-choice__navigation-up" @click="scroll_pendants('up')"
+							:class="{ 'is-visible' : check_scroll('top', 'pendants'), }"><img src="{{ 'pendant-scroll-btn-up.png' | asset_url }}"></button>
+							<div class="c-choice-panel--pendant-style__choices-container">
+
+								<div class="c-choice-panel--pendant-style__choices">
+									<div class="c-choice" :class="{'is-selected' : current_chain.pendant == pendant}"
+									v-for="(pendant, index) in pendants"
+									@mouseenter="hover_show_item('pendant', index)"
+									@mouseleave="hover_hide_item('pendant', index)"
+									v-bind:data-index="index" @click="select_pendant(pendant)"
+									v-if="check_variants(pendant.name)">
+										<div class="c-choice__add"><img class='pendant-add-btn' src="{{ 'icon-expand-w.svg' | asset_url }}"></div>
+										<div class='pendant-wrapper-main'><div class='pendant-image-wrapper'><img class='pendant-image' v-bind:src="pendant.image" /></div></div>
+										<div class="c-choice__title-container"><span><span class="c-choice__title"><span v-html="pendant.name"></span></span></span></div>
+									</div>
+								</div>
+							</div>
+							<button class="c-choice__navigation c-choice__navigation-down" @click="scroll_pendants('down')"
+							:class="{ 'is-visible' : check_scroll('bottom', 'pendants'), }"><img src="{{ 'pendant-scroll-btn-down.png' | asset_url }}"></button>
+						</div>
+						<div class="c-choice__preview">
+							<div class="c-choice__preview-box" id='pendant-overlay'></div>
+						</div>
+					</div>
+				</transition>
+			</div>
+		</div>

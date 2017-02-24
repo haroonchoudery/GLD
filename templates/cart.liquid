@@ -1,3 +1,4 @@
+{% assign custom_handle = 'custom-set' %}
 {% include 'bold-cart' %}
 <!--<div class="desktop-12 tablet-6 mobile-6 center advertising">
   <img src="{{ 'checkout-banner.jpg' | asset_url }}"/>
@@ -35,14 +36,26 @@
         <tr class="{{ bold_row_class }}" {{ bold_row_data }}>
           <td class="cart-item">
               <div class="cart-image">
+                {% if item.product.handle == custom_handle %}
+                <a href="{{ item.url }}" title="{{ item.product.title | escape }}" class="custom">
+                  <img src="{{ item.product | img_url: 'compact' }}" alt="{{ item.title | escape }}" />
+                </a>
+                {% else %}
                 <a href="{{ item.url }}" title="{{ item.product.title | escape }}">
                   <img src="{{ item | img_url: 'compact' }}" alt="{{ item.title | escape }}" />
                 </a>
-                {{ bold_item_properties }}
+                {% endif %}
               </div>
               <div class="cart-title">
                 {% if settings.vendor %}<p>{{ item.vendor }}</p>{% endif %}
-                {{ item.title | remove: ' / Default' | remove: 'Default' }}
+                
+                {% if item.product.handle == custom_handle %}
+                  {{ item.product.title | remove: ' / Default' | remove: 'Default' }}
+                {% else %}
+                  {{ item.title | remove: ' / Default' | remove: 'Default' }}
+                {% endif %}
+                
+                {{ bold_item_properties }}
               </div>
           </td>
           <td class="cart-price">
@@ -150,4 +163,4 @@
 {% include 'limespot-upsell-cart' %}
 {% include 'limespot-you-may-like' %}
 {% include 'limespot-recently-viewed' %}
-{% include 'limespot-most-popular' %}
+{% include 'limespot-most-popular' %}{%include 'preorder-me-cart'%}

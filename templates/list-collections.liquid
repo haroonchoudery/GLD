@@ -3,6 +3,7 @@
 
   <div id="product-loop">
     {% for collection in collections %}
+    {%- if collection.handle != 'custom-set' -%}
         {% assign products-per-row = settings.products-per-row %}
     <div class="product-index {% if products-per-row == "6" %}desktop-2{% cycle ' first', '', '', '', '', ' last' %}{% elsif products-per-row == "4" %}desktop-3{% cycle ' first', '', '', ' last' %}{% elsif products-per-row == "3" %}desktop-4{% cycle ' first', '', ' last' %}{% elsif products-per-row == "5" %}desktop-fifth{% cycle ' first', '', '', '', ' last' %}{% elsif products-per-row == "2" %}desktop-6{% cycle ' first', ' last' %}{% endif %} tablet-half mobile-half" data-alpha="{{ collection.title }}">     
       <div class="prod-container">
@@ -20,6 +21,7 @@
         </a>
       </div>
     </div>
+    {%- endif -%}
     {% endfor %}
   </div>
 

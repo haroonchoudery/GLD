@@ -1,0 +1,7 @@
+{% layout 'theme.custom-set' %}
+
+<div class="o-container" id="app">
+	<div class="o-loading" v-if="is_loading"></div>
+	{% include 'custom-set-mobile' %}
+	{% include 'custom-set-desktop' %}
+</div>

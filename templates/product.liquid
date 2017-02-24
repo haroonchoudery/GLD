@@ -4,6 +4,12 @@ Product is not available
 {% break %}{% endif %}
 <!-- // end product D&H -->
 
+{% assign hidden = false %}
+{%- for tag in product.tags -%}
+{%- if tag == 'hidden' -%}{%- assign hidden = true -%}{%- endif -%}
+{%- endfor -%}
+{%- if hidden -%}Product is not available.{% break %}{%- endif -%}
+
 <div itemscope itemtype="http://schema.org/Product" id="product-{{ product.id }}" class="product-page">
 
   <meta itemprop="url" content="{{ shop.url }}{{ product.url }}">
