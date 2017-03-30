@@ -67,7 +67,7 @@
 								<div class="c-chain-items"><span>Chain Length</span></div>
 								<div class="c-chain-items"><span>Chain Style</span></div>
 								<div class="c-chain-items"><span>Pendant Type</span></div>
-								<div class="c-chain-items c-chain-items-last"><div><button class="c-summary-button c-button-close" @click="view_summary(false)"><img src="{{ 'icon-close-w.svg' | asset_url }}"></button></div></div>
+								<div class="c-chain-items c-chain-items-last"><div><button class="c-summary-button c-button-close" @click="view_summary(false)"><span class='collapse-text'>Collapse</span><img src="{{ 'icon-close-w.svg' | asset_url }}"></button></div></div>
 							</div>
 							<div class="c-header-summary__row" v-for="(chain, index) in chains">
 								<div class="c-chain-num"><span v-html="'Chain '+number_to_text(index + 1)"></span></div>
@@ -113,7 +113,7 @@
 									<div>Use the chain builder to create your custom set.</div>
 								</div>
 								<div class="c-chain-items c-chain-items-last">
-									<div class="c-summary-button-container"><button class="c-summary-button c-button-close" @click="view_summary(false)"><img src="{{ 'icon-close-w.svg' | asset_url }}"></button></div>
+									<div class="c-summary-button-container"><button class="c-summary-button c-button-close" @click="view_summary(false)"><span class='collapse-text'>Collapse</span><img src="{{ 'icon-close-w.svg' | asset_url }}"></button></div>
 								</div>
 							</div>
 
@@ -150,7 +150,7 @@
                       	
                         <input v-for="(chain, index) in chains" type="hidden" :name="'properties[Chain '+(index+1)+']'" 
                                :id="'chain_'+index" 
-                               :value="chain.metal.name +' / '+ chain.size.size +'&quot; / '+ chain.style.name + ' / ' + chain.pendant.name">
+                               :value="chain.metal.name +' / '+ chain.size.size +'&quot; / '+ chain.style.name + ' / ' + chain.pendant.name + ' / SKU' + chain.pendant_variant.sku">
                       
                       <div class="actions">
 							<button class="c-total-cart"
@@ -237,7 +237,7 @@
 						<div class="c-metal-opaque"></div>
 
 						<div class="c-metal-type__title-container">
-							<h2 class="c-metal-type__title">Customize a set</h2>
+							<h2 class="c-metal-type__title">Customize a Set</h2>
 							<span><img src="{{ 'icon-carret-b.svg' | asset_url }}"></span>
 						</div>
 

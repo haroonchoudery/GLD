@@ -43,21 +43,131 @@
 }
 
 /* [DM] Positions */
-#mobile .c-preview-layer--chain-outlines {
-    position: absolute;
-    top: 20px;
-    width: 100vw;
-    height: 100vh;
-}
+#mobile .c-preview-layer--chain-outlines,
 #mobile .c-preview-layer--chains {
     position: absolute;
-    top: 38px;
+    top: 13px;
     width: 100vw;
     height: 100vh;
+  	-webkit-transform-origin: top;
+  	transform-origin: top;
+  	-webkit-transform: scale(.45);
+  	transform: scale(.45);
 }
 #mobile .c-preview-layer--pendants {
     position: absolute;
-    top: 34px;
+    top: 18px;
     width: 100vw;
     height: 100vh;
+  	-webkit-transform-origin: top;
+  	transform-origin: top;
+  	-webkit-transform: scale(.45);
+  	transform: scale(.45);
+}
+
+#mobile .c-choice-panel--chain-length {
+    width: 100%;
+    max-width: 400px;
+    height: calc(100% - 39px);
+    margin: 30px auto 0;
+    text-align: center;
+    -webkit-transition: opacity .25s;
+    transition: opacity .25s;
+}
+
+/* [DM] Dots and Chains Positions and Styles */
+
+.c-preview-layer--chain,
+.c-preview-layer--chain-outline {
+    background-repeat: no-repeat;
+    background-position: 48% 0;
+    background-size: auto 43%;
+    opacity: 1;
+    -webkit-transition: opacity .25s;
+    transition: opacity .25s
+}
+
+.o-chain-outline--20 {
+    background-image: url(custom-set-chain-dot-0000-0--20.png);
+}
+.o-chain-outline--24 {
+    background-image: url(custom-set-chain-dot-0000-0--24.png);
+}
+.o-chain-outline--28 {
+    background-image: url(custom-set-chain-dot-0000-0--28.png);
+}
+.o-chain-outline--30 {
+    background-image: url(chain-30in-dot-4.png);
+}
+
+#desktop .o-container__chain-preview .o-container-chain-dots .o-container-chain-20-dot {
+    background-image: url(custom-set-chain-dot-0000-0--20.png)
+}
+
+#desktop .o-container__chain-preview .o-container-chain-dots .o-container-chain-24-dot {
+    background-image: url(custom-set-chain-dot-0000-0--24.png)
+}
+
+#desktop .o-container__chain-preview .o-container-chain-dots .o-container-chain-28-dot {
+    background-image: url(custom-set-chain-dot-0000-0--28.png)
+}
+
+#desktop .o-container__chain-preview .o-container-chain-dots .o-container-chain-30-dot {
+    background-image: url(chain-30in-dot-4.png)
+}
+
+#desktop .o-container__chain-preview .o-container-chain-dots div,
+#desktop .o-container__chain-preview .o-container-chain-20,
+#desktop .o-container__chain-preview .o-container-chain-24,
+#desktop .o-container__chain-preview .o-container-chain-28,
+#desktop .o-container__chain-preview .o-container-chain-30,
+#desktop .o-container__chain-preview .o-container-chains,
+#desktop .o-container__chain-preview .o-container-pendants {
+    background-repeat: no-repeat;
+    background-position: 48.8% 0;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 37px;
+    z-index: -1;
+    max-height: 1125px
+}
+
+#desktop .o-container__chain-preview .o-container-chains {
+ 	top: 0; 
+}
+
+@media only screen and (min-width: 750px) and (max-width: 1199px) {
+ 	.c-preview-layer--chain, .c-preview-layer--chain-outline {
+ 		background-position: 48% 0;
+ 	}
+  
+ 	#mobile .c-preview-layer--chain-outlines,
+	#mobile .c-preview-layer--chains {
+      	top: 23px;
+      	-webkit-transform: scale(0.61);
+  		transform: scale(0.61);
+	}
+  
+  	#mobile .c-preview-layer--pendants {
+     	top: 29px;
+      	-webkit-transform: scale(.61);
+      	transform: scale(.61);
+    }
+  
+  	#mobile .c-choice-panel--chain-length {
+     	height: 80%;
+        margin: 200px auto 0;
+    }
+}
+
+
+@media only screen and (max-width: 1200px) {
+    #desktop .o-container__chain-preview .o-container-chain-20-dot,
+    #desktop .o-container__chain-preview .o-container-chain-24-dot,
+    #desktop .o-container__chain-preview .o-container-chain-28-dot,
+    #desktop .o-container__chain-preview .o-container-chain-30-dot,
+    #desktop .o-container__chain-preview .o-container-chain-dots {
+        background-position: 48% 0
+    }
 }

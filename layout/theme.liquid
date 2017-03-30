@@ -490,8 +490,14 @@ a.async=true;a.type="text/javascript";b.parentNode.insertBefore(a,b)}, 1);
 
 {% include 'easyvideo' %}
 {% include 'gts' %}
+  <!--
+<script> 
 
-<!--<script> 
+/* jQuery.ajaxQueue - A queue for ajax requests */ 
+!function(e){var r=e({});e.ajaxQueue=function(n){function t(r){u=e.ajax(n).done(a.resolve).fail(a.reject).then(r,r)}var u,a=e.Deferred(),i=a.promise();return r.queue(t),i.abort=function(o){if(u)return u.abort(o);var c=r.queue(),f=e.inArray(t,c);return f>-1&&c.splice(f,1),a.rejectWith(n.context||n,[i,o,""]),i},i}}(jQuery);
+
+
+
 if (typeof(ju_options) !== 'object'){
 	var ju_options = {"targeting":{"subtotal":0},"personalized":{"shipping_threshold":0}};
 } else {
@@ -509,8 +515,14 @@ $(document).ready(function(){
 });
 
 var cs_custom_subtotal_check;
-var cs_giftcardadded = false;
-var cs_giftcardremoved = false;
+var cs_giftcardadded50 = false;
+var cs_giftcardadded125 = false;
+var cs_giftcardadded250 = false;
+var cs_giftcardadded500 = false;
+var cs_giftcardremoved50 = false;
+var cs_giftcardremoved125 = false;
+var cs_giftcardremoved250 = false;
+var cs_giftcardremoved500 = false;
 
 function cs_setCookie( name, value, days, path, domain, secure ){ 
 	// set time, it's in milliseconds 
@@ -542,45 +554,200 @@ function cs_check_auto_subtotal(){
 }
 
 function cs_check_auto_subtotal_interval(){ 
-	var subtotal = 0.00;
-	var giftcardexists = -1;
-	if ($('#basket-right h4').length || $('#cart_popup').is(':visible')){
-		if (typeof(cs_getCookie) !== 'undefined' && typeof(cs_getCookie) === 'function') { 
-			if ($('#basket-right h4').length){
-				subtotal = parseFloat($('#basket-right h4').text().replace(/[^\d.-]/g, ''));
-				$('.cart-item').each(function(index){
-					giftcardexists = ($(this).find('.cart-title').text().indexOf('Gift Card')>-1 ? index : giftcardexists);
-				})
-				if (giftcardexists>-1 && subtotal<1 && !cs_giftcardremoved){
-					cs_giftcardremoved = true;
-					$('.cart-item:eq('+giftcardexists+')').closest('tr').remove();
-					$.get('/cart/change?line='+(giftcardexists+1)+'&quantity=0');
-					//document.location = '/cart/change?line='+(giftcardexists+1)+'&quantity=0';
-				}
-			} else if ($('#cart_popup').is(':visible')){
-				$('#cart_popup .quick-cart-item').each(function(){
-					subtotal += parseFloat($(this).find('div:eq(4)').text().replace(/[^\d.-]/g, ''));
-					giftcardexists = ($(this).find('div:eq(1) a').text().indexOf('Gift Card')>-1 ? 0 : giftcardexists);
-				})
-			}
-			cs_setCookie("ju_cs_subtotal", subtotal,1, '/', '', ''); 
-			ju_options.targeting.subtotal=subtotal;
-			ju_options.personalized.shipping_threshold=(150-subtotal).toFixed(2);
-			if (subtotal>=1 && giftcardexists==-1 && !cs_giftcardadded){
-				cs_giftcardadded = true;
-				$.post('/cart/add.js',{"id":27977803977,"quantity":1});
-			}
-			//console.log(giftcardexists)
-		} 
+	try{
+		// this first line is to disable the buy button on product page of gift card
+	  $('#product-description').has("h1:contains('Gift Card')").find('form[action="/cart/add"] input[type="submit"]').prop('disabled',true).val('Disabled');
+
+		
+var subtotal = 0.00;
+    var giftcardexists50 = -1;
+    var giftcardexists125 = -1;
+    var giftcardexists250 = -1;
+    var giftcardexists500 = -1;
+    if ($('#basket-right h4').length || $('#cart_popup').is(':visible')){
+      if (typeof(cs_getCookie) !== 'undefined' && typeof(cs_getCookie) === 'function') { 
+        if ($('#basket-right h4').length){
+          subtotal = parseFloat($('#basket-right h4').text().replace(/[^\d.-]/g, ''));
+          console.log('cart page')
+          $('.cart-item').each(function(index){
+            giftcardexists50 = ($(this).find('.cart-title').text().indexOf('Gift Card - $10')>-1 ? index : giftcardexists50);
+            giftcardexists125 = ($(this).find('.cart-title').text().indexOf('Gift Card - $25')>-1 ? index : giftcardexists125);
+            giftcardexists250 = ($(this).find('.cart-title').text().indexOf('Gift Card - $50')>-1 ? index : giftcardexists250);
+            giftcardexists500 = ($(this).find('.cart-title').text().indexOf('Gift Card - $125')>-1 ? index : giftcardexists500);
+            if ($(this).find('.cart-title').text().indexOf('Gift Card')>-1){
+              $('.cart-item:eq('+index+')').closest('tr').find('.cart-quantity input').prop('readOnly',true).css('border','none');
+            }
+          })
+          if (giftcardexists50>-1 && (subtotal<50 || subtotal>=125) && !cs_giftcardremoved50){
+            cs_giftcardremoved50 = true;
+            $('.cart-item:eq('+giftcardexists50+')').closest('tr').remove();
+            console.log("remove 10")
+            $.ajaxQueue({
+						    url: '/cart/change?line='+(giftcardexists50+1)+'&quantity=0',
+				    		dataType: "text",
+						})
+            //$.get('/cart/change?line='+(giftcardexists50+1)+'&quantity=0');
+            //document.location = '/cart/change?line='+(giftcardexists50+1)+'&quantity=0';
+          }
+          if (giftcardexists125>-1 && (subtotal<125 || subtotal>=250) && !cs_giftcardremoved125){
+            cs_giftcardremoved125 = true;
+            $('.cart-item:eq('+giftcardexists125+')').closest('tr').remove();
+            console.log("remove 25")
+            $.ajaxQueue({
+						    url: '/cart/change?line='+(giftcardexists125+1)+'&quantity=0',
+				    		dataType: "text",
+						})
+            //$.get('/cart/change?line='+(giftcardexists125+1)+'&quantity=0');
+            //document.location = '/cart/change?line='+(giftcardexists125+1)+'&quantity=0';
+          }
+          if (giftcardexists250>-1 && (subtotal<250 || subtotal>=500) && !cs_giftcardremoved250){
+            cs_giftcardremoved250 = true;
+            $('.cart-item:eq('+giftcardexists250+')').closest('tr').remove();
+            console.log("remove 50")
+            $.ajaxQueue({
+						    url: '/cart/change?line='+(giftcardexists250+1)+'&quantity=0',
+				    		dataType: "text",
+						})
+            //$.get('/cart/change?line='+(giftcardexists250+1)+'&quantity=0');
+            //document.location = '/cart/change?line='+(giftcardexists250+1)+'&quantity=0';
+          }
+          if (giftcardexists500>-1 && subtotal<500 && !cs_giftcardremoved500){
+            cs_giftcardremoved500 = true;
+            $('.cart-item:eq('+giftcardexists500+')').closest('tr').remove();
+            console.log("remove 100")
+            $.ajaxQueue({
+						    url: '/cart/change?line='+(giftcardexists500+1)+'&quantity=0',
+				    		dataType: "text",
+						})
+            //$.get('/cart/change?line='+(giftcardexists500+1)+'&quantity=0');
+            //document.location = '/cart/change?line='+(giftcardexists500+1)+'&quantity=0';
+          }
+        } else if ($('#cart_popup').is(':visible')){
+          $('#cart_popup .quick-cart-item').each(function(index){
+            subtotal += parseFloat($(this).find('div:eq(4)').text().replace(/[^\d.-]/g, ''));
+            giftcardexists50 = ($(this).find('div:eq(1) a').text().indexOf('Gift Card - $10')>-1 ? index : giftcardexists50);
+            giftcardexists125 = ($(this).find('div:eq(1) a').text().indexOf('Gift Card - $25')>-1 ? index : giftcardexists125);
+            giftcardexists250 = ($(this).find('div:eq(1) a').text().indexOf('Gift Card - $50')>-1 ? index : giftcardexists250);
+            giftcardexists500 = ($(this).find('div:eq(1) a').text().indexOf('Gift Card - $125')>-1 ? index : giftcardexists500);
+          })
+          if (giftcardexists50>-1 && (subtotal<50 || subtotal>=125) && !cs_giftcardremoved50){
+            cs_giftcardremoved50 = true;
+            $('#cart_popup .quick-cart-item:eq('+giftcardexists50+')').closest('tr').remove();
+            $.ajaxQueue({
+						    url: '/cart/change?line='+(giftcardexists50+1)+'&quantity=0',
+				    		dataType: "text",
+						})
+            //$.get('/cart/change?line='+(giftcardexists50+1)+'&quantity=0');
+            //document.location = '/cart/change?line='+(giftcardexists50+1)+'&quantity=0';
+          }
+          if (giftcardexists125>-1 && (subtotal<125 || subtotal>=250) && !cs_giftcardremoved125){
+            cs_giftcardremoved125 = true;
+            $('#cart_popup .quick-cart-item:eq('+giftcardexists125+')').closest('tr').remove();
+            $.ajaxQueue({
+						    url: '/cart/change?line='+(giftcardexists125+1)+'&quantity=0',
+				    		dataType: "text",
+						})
+            //$.get('/cart/change?line='+(giftcardexists125+1)+'&quantity=0');
+            //document.location = '/cart/change?line='+(giftcardexists125+1)+'&quantity=0';
+          }
+          if (giftcardexists250>-1 && (subtotal<250 || subtotal>=500) && !cs_giftcardremoved250){
+            cs_giftcardremoved250 = true;
+            $('#cart_popup .quick-cart-item:eq('+giftcardexists250+')').closest('tr').remove();
+            $.ajaxQueue({
+						    url: '/cart/change?line='+(giftcardexists250+1)+'&quantity=0',
+				    		dataType: "text",
+						})
+            //$.get('/cart/change?line='+(giftcardexists250+1)+'&quantity=0');
+            //document.location = '/cart/change?line='+(giftcardexists250+1)+'&quantity=0';
+          }
+          if (giftcardexists500>-1 && subtotal<500 && !cs_giftcardremoved500){
+            cs_giftcardremoved500 = true;
+            $('#cart_popup .quick-cart-item:eq('+giftcardexists500+')').closest('tr').remove();
+            $.ajaxQueue({
+						    url: '/cart/change?line='+(giftcardexists500+1)+'&quantity=0',
+				    		dataType: "text",
+						})
+            //$.get('/cart/change?line='+(giftcardexists500+1)+'&quantity=0');
+            //document.location = '/cart/change?line='+(giftcardexists500+1)+'&quantity=0';
+          }
+        }
+        cs_setCookie("ju_cs_subtotal", subtotal,1, '/', '', ''); 
+        ju_options.targeting.subtotal=subtotal;
+        ju_options.personalized.shipping_threshold=(150-subtotal).toFixed(2);
+        if (subtotal>=50 && subtotal<125 && giftcardexists50==-1 && !cs_giftcardadded50){
+          cs_giftcardadded50 = true;
+          console.log("add 10")
+          $.ajaxQueue({
+				    url: '/cart/add.js',
+				    type: "post",
+				    dataType: "text",
+				    data: {"id":31579217810,"quantity":1}
+					}).done(function( data ) {
+					    // ...
+					    console.log('reload')
+					    location.reload();
+					});
+          //$.post('/cart/add.js',{"id":31579217810,"quantity":1});
+        }
+        if (subtotal>=125 && subtotal<250 && giftcardexists125==-1 && !cs_giftcardadded125){
+          cs_giftcardadded125 = true;
+          console.log("add 25")
+          $.ajaxQueue({
+				    url: '/cart/add.js',
+				    type: "post",
+				    dataType: "text",
+				    data: {"id":28110779026,"quantity":1}
+					}).done(function( data ) {
+					    // ...
+					    console.log('reload')
+					    location.reload();
+					});
+          //$.post('/cart/add.js',{"id":28110779026,"quantity":1});
+        }
+        if (subtotal>=250 && subtotal<500 && giftcardexists250==-1 && !cs_giftcardadded250){
+          cs_giftcardadded250 = true;
+          console.log("add 50")
+          $.ajaxQueue({
+				    url: '/cart/add.js',
+				    type: "post",
+				    dataType: "text",
+				    data: {"id":28110779154,"quantity":1}
+					}).done(function( data ) {
+					    // ...
+					    console.log('reload')
+					    location.reload();
+					});
+          //$.post('/cart/add.js',{"id":28110779154,"quantity":1});
+        }
+        if (subtotal>=500 && giftcardexists500==-1 && !cs_giftcardadded500){
+          cs_giftcardadded500 = true;
+          console.log("add 100")
+          $.ajaxQueue({
+				    url: '/cart/add.js',
+				    type: "post",
+				    dataType: "text",
+				    data: {"id":31579228050,"quantity":1}
+					}).done(function( data ) {
+					    // ...
+					    console.log('reload')
+					    location.reload();
+					});
+          //$.post('/cart/add.js',{"id":31579228050,"quantity":1});
+        }
+        //console.log(giftcardexists)
+      } 
+    }
+		subtotal = cs_getCookie("ju_cs_subtotal");
+		if (subtotal===undefined && subtotal!=''){
+			subtotal=0;
+		} else {
+			subtotal = parseFloat(subtotal);
+		}
+		ju_options.targeting.subtotal=subtotal;
+		ju_options.personalized.shipping_threshold=(150-subtotal).toFixed(2);
+	} catch(e){
+		//
 	}
-	subtotal = cs_getCookie("ju_cs_subtotal");
-	if (subtotal===undefined && subtotal!=''){
-		subtotal=0;
-	} else {
-		subtotal = parseFloat(subtotal);
-	}
-	ju_options.targeting.subtotal=subtotal;
-	ju_options.personalized.shipping_threshold=(150-subtotal).toFixed(2);
 }
 </script>-->
 <script type="text/javascript">

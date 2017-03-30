@@ -31,11 +31,13 @@ Product is not available
     <div class="bigimage-{{ product.id }} bigimage desktop-10 tablet-5">
       <img id="{{ product.id }}" data-image-id="{{ image.id }}" src="{{ featured_image | img_url: 'master' }}" alt='{{ image.alt }}' title="{{ product.title }}"/>
     </div>
-    {% endif %}    
+    <div class="thumbnails">
+    {% endif %}
     <a href="{{ image | product_img_url: 'master' }}" data-image-id="{{ image.id }}" class="clicker-{{ product.id }}">
       <img class="thumbnail desktop-2 tablet-1" src="{{ image | product_img_url: 'medium' }}" alt="{{ image.alt | escape }}" data-image-id="{{ image.id }}" />
     </a>
-    {% endfor %} 
+    {% endfor %}
+    </div>
   </div>
 
   <script>

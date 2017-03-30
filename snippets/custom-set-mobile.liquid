@@ -17,6 +17,7 @@
 			>
 				<div class="c-drawer--scrollable">
 					<div class="c-drawer--top-bar">
+                        <span class='collapse-summary' @click="close_summary">Collapse</span>
 						<a href="#">
 							<img @click="close_summary" class="c-drawer--top-bar__close" src="{{ 'icon-close-w.svg' | asset_url }}">
 						</a>
@@ -123,7 +124,7 @@
 
                 <input v-for="(chain, index) in chains" type="hidden" :name="'properties[Chain '+(index+1)+']'"
                                :id="'chain_'+index"
-                               :value="chain.metal.name +' / '+ chain.size.size +'&quot; / '+ chain.style.name + ' / ' + chain.pendant.name">
+                               :value="chain.metal.name +' / '+ chain.size.size +'&quot; / '+ chain.style.name + ' / ' + chain.pendant.name + ' / SKU' + chain.pendant_variant.sku">
 					<div class="actions">
 						<button type="button" :disabled="!checkout_ready()" v-if="!max_chains_selected()" @click="new_chain()" :disabled="max_chains_selected()" ><span class="cta">+</span> <span v-html="number_to_ordinal_text(chains.length + 1)+' Chain'"></span> <template v-if="chains.length <= 1"><br>(required)</template> </button>
 						<div v-if="!max_chains_selected()" class="actions--separator"></div>
@@ -245,7 +246,7 @@
 					class="c-choice-panel--metal-type">
 
 					<div class="c-choice-panel--metal-type__inner">
-						<h2 class="c-metal-type__title">Customize a set</h2>
+						<h2 class="c-metal-type__title">Customize a Set</h2>
 
 						<div class="c-metal-type__choices">
 							<a

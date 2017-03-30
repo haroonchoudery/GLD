@@ -823,8 +823,8 @@ var data = {
 			size:    { size: null },
 			style:   { name: null },
 			pendant: { name: null },
-          	style_variant: { id: null, metal: null, size: null, style: null, pendant: null, quantity: null, price: null, image: null},
-          	pendant_variant: { id: null, metal: null, size: null, style: null, pendant: null, quantity: null, price: null, image: null},
+          	style_variant: { id: null, metal: null, size: null, style: null, pendant: null, quantity: null, price: null, image: null, sku: null},
+          	pendant_variant: { id: null, metal: null, size: null, style: null, pendant: null, quantity: null, price: null, image: null, sku: null},
 			collapsed: false,
 		}
 	],
@@ -836,8 +836,8 @@ var data = {
 		size:    { size: null },
 		style:   { name: null },
 		pendant: { name: null },
-      	style_variant: { id: null, metal: null, size: null, style: null, pendant: null, quantity: null, price: null, image: null},
-      	pendant_variant: { id: null, metal: null, size: null, style: null, pendant: null, quantity: null, price: null, image: null},
+      	style_variant: { id: null, metal: null, size: null, style: null, pendant: null, quantity: null, price: null, image: null, sku: null},
+      	pendant_variant: { id: null, metal: null, size: null, style: null, pendant: null, quantity: null, price: null, image: null, sku: null},
 		collapsed: false,
 	},
 	cached_chain: {
@@ -845,8 +845,8 @@ var data = {
 		size:    { size: null },
 		style:   { name: null },
 		pendant: { name: null },
-      	style_variant: { id: null, metal: null, size: null, style: null, pendant: null, quantity: null, price: null, image: null},
-      	pendant_variant: { id: null, metal: null, size: null, style: null, pendant: null, quantity: null, price: null, image: null},
+      	style_variant: { id: null, metal: null, size: null, style: null, pendant: null, quantity: null, price: null, image: null, sku: null},
+      	pendant_variant: { id: null, metal: null, size: null, style: null, pendant: null, quantity: null, price: null, image: null, sku: null},
 	},
 	steps: [
       	'metals',
@@ -861,11 +861,11 @@ var data = {
 	metal_description: [
 		{ 	
        		metal: "18K Vermeil",
-	  		description: 'Sterling Silver that has been Gold-Plated',
+          description: 'Sterling Silver that has been Gold-Plated. Starting at:',
         },
 		{ 	
        		metal: "18K Gold Plated",
-	  		description: 'Brass Base Metal dipped in Gold',
+	  		description: 'Brass Base Metal dipped in Gold. Starting at:',
         },
 //       	{ 	
 //        		metal: "14K Solid Gold",
@@ -972,6 +972,7 @@ variants['{{ variant.option1 }}']['{{ variant.option2 }}']['{{ product.title }}'
   discount:   '{{ variant.compare_at_price }}',
   image:      '{{ variant.image.src | img_url: 'original' }}',
   tag:        '{{ ctag }}, {{ ptag }}',
+  sku:        '{{ variant.sku }}'
 };
 {%- endif -%}
 {%- endfor -%}
@@ -1018,6 +1019,7 @@ variants['{{ variant.option1 }}']['{{ variant.option2 }}']['{{ variant.option3 }
   price:      '{{ variant.price | money_without_currency | remove: '.00' }}',
   image:      '{{ variant.image.src | img_url: 'original' }}',
   tag:        '{{ ptag }}, {{ ctag }}',
+  sku:        '{{ variant.sku }}'
 };
 {%- endif -%}
 {%- endfor -%}
